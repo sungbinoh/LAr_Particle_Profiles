@@ -1,4 +1,7 @@
-# To estimate particle profiles inside LAr
+# LAr Particle Profiles
+
+## Purpose
+ To estimate particle profiles inside LAr
 
 ## To run
 ```
