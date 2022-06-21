@@ -1,0 +1,11 @@
+*.pyc
+*.pcm
+*.d
+*.so
+*_Dict.cxx
+lib/*.tar.gz
+*/obj
+*.png
+*.pdf
+*.root
+*~
