@@ -5,6 +5,7 @@
 
 class dEdx_functions{
 
+ public:
   // == Bethe-Bloch parameters, https://indico.fnal.gov/event/14933/contributions/28526/attachments/17961/22583/Final_SIST_Paper.pdf
   const double rho = 1.39; // [g/cm3], density of LAr   
   const double K = 0.307075; // [MeV cm2 / mol]
@@ -18,14 +19,13 @@ class dEdx_functions{
   const double density_a = 0.19559;
   const double density_k = 3.0;
 
- public :
   double Density_Correction(double beta, double gamma);
   double dEdx_Bethe_Bloch(double KE, double mass);
-  double Landau_Vavilov(double KE, double dx, double mass);
+  double dEdx_Landau_Vavilov(double KE, double dx, double mass);
   double Get_Landau_xi(double KE, double dx, double mass);
 
   dEdx_functions();
-  ~dEdx_functions();
+  virtual ~dEdx_functions();
 };
 
 #endif

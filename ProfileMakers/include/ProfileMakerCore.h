@@ -15,6 +15,7 @@
 #include "TH2D.h"
 #include "TH3D.h"
 #include "TRandom.h"
+#include "TF1.h"
 #include "TROOT.h"
 
 #include "dEdx_functions.h"
@@ -25,7 +26,7 @@ class ProfileMakerCore {
 
  public:
   ProfileMakerCore();
-  ~ProfileMakerCore();
+  virtual ~ProfileMakerCore();
 
   dEdx_functions dEdx;
 
