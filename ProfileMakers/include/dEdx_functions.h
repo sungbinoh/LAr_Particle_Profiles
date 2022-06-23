@@ -1,7 +1,10 @@
 #ifndef dEdx_functions_h
 #define dEdx_functions_h
 
+#include <iostream>
 #include "TMath.h"
+
+using namespace std;
 
 class dEdx_functions{
 
@@ -20,7 +23,9 @@ class dEdx_functions{
   const double density_k = 3.0;
 
   double Density_Correction(double beta, double gamma);
+  double Get_Wmax(double KE, double mass);
   double dEdx_Bethe_Bloch(double KE, double mass);
+  double Macroscopic_Xsec(double KE, double mass, double r_param);
   double dEdx_Landau_Vavilov(double KE, double dx, double mass);
   double Get_Landau_xi(double KE, double dx, double mass);
 

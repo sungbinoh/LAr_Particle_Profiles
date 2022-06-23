@@ -14,6 +14,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TH3D.h"
+#include "TGraph.h"
 #include "TRandom.h"
 #include "TF1.h"
 #include "TROOT.h"

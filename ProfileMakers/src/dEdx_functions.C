@@ -18,6 +18,14 @@ double dEdx_functions::Density_Correction(double beta, double gamma){
   return this_delta;
 }
 
+double dEdx_functions::Get_Wmax(double KE, double mass){
+  double gamma = (KE/mass)+1.0;
+  double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
+  double Wmax = (2.0 * Me * pow(beta * gamma, 2)) / (1.0 + 2.0 * Me * (gamma / mass) + pow((Me / mass),2));
+
+  return Wmax;
+}
+
 double dEdx_functions::dEdx_Bethe_Bloch(double KE, double mass){
   double gamma = (KE/mass)+1.0;
   double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
@@ -32,13 +40,29 @@ double dEdx_functions::dEdx_Bethe_Bloch(double KE, double mass){
   return this_dEdx;
 }
 
+double dEdx_functions::Macroscopic_Xsec(double KE, double mass, double r_param = 0.4){
+  // == Calculate macroscopic ionization cross section used by the GEANT
+  // ==== Nuclear Instruments and Methods in Physics Research A 362 (1995) 416-422
+  // ==== Default r_param = 0.4
+  double Wmax = Get_Wmax(KE,mass);
+  Wmax = 0.04; // == [MeV]
+  double dEdx = dEdx_Bethe_Bloch(KE, mass);
+  double xsec = dEdx * (Wmax - I) * r_param / (I * Wmax * TMath::Log(Wmax / I));
+  double factor = (Wmax - I) / ( Wmax * TMath::Log(Wmax / I));
+  double log = TMath::Log(Wmax / I);
+  //cout << "[dEdx_functions::Macroscopic_Xsec] Wmax\t" << Wmax << "\tfactor\t" << factor << "\tlog\t" << log << endl;
+
+  return xsec;
+}
+
 double dEdx_functions::dEdx_Landau_Vavilov(double KE, double dx, double mass){
   double gamma = (KE/mass)+1.0;
   double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
   double delta = Density_Correction(beta, gamma);
   double xi = rho * dx * 0.5 * K * (18.0 / A) * pow(1. / beta, 2);
   double a0 = 2.0 * Me * pow(beta * gamma, 2) / I;
-  double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ;
+  //double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ;
+  double this_dpdx = (xi) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ; // == MPV of dE, FWHM = 4xi
 
   return this_dpdx;
 }
