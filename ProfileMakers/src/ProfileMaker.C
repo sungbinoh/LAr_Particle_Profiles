@@ -30,7 +30,14 @@ void ProfileMaker::Execute(){
   ResLength_to_KE_BB(KE_to_ResLength_BB(2000, mass_pion), mass_pion);
   ResLength_to_KE_BB(KE_to_ResLength_BB(4000, mass_pion), mass_pion);
 
+  KE_to_ResLength_BB(1000., mass_pion);
+  KE_to_ResLength_BB(500., mass_pion);
   ResLength_to_KE_BB(20., mass_pion);
+
+  double a = KE_to_Momentum(500., mass_pion);
+  a = KE_to_Momentum(400., mass_pion);
+  a = KE_to_Momentum(1000., mass_pion);
+
   /*
   KE_to_ResLength_LV(200, mass_muon);
   KE_to_ResLength_LV(300, mass_muon);
@@ -70,6 +77,13 @@ void ProfileMaker::Execute(){
   Mimic_GEANT(1000, mass_muon);
 
   
+}
+
+double ProfileMaker::KE_to_Momentum(double KE, double mass){
+  double mom = sqrt(pow(KE, 2) + 2.0 * KE * mass);
+  cout << "[ProfileMaker::KE_to_Momentum] KE\t" << KE << "\tmass\t" << mass << "\tmom\t" << mom << endl;
+
+  return mom;
 }
 
 double ProfileMaker::KE_to_ResLength_BB(double KE, double mass){

@@ -8,6 +8,7 @@ class ProfileMaker : public ProfileMakerCore {
 public:
   
   void Execute();
+  double KE_to_Momentum(double KE, double mass);
   double KE_to_ResLength_BB(double KE, double mass);
   void ResLength_to_KE_BB(double ResLength, double mass);
   void Mimic_GEANT(double KE, double mass);
