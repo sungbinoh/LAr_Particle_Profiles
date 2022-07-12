@@ -25,8 +25,10 @@ void ProfileMaker::Execute(){
 
   // == KE to dE/dx BB
   cout << "<dE/dx> pion KE = 20 MeV (P = " << KE_to_Momentum(20, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_pion) << endl;
+  cout << "<dE/dx> pion KE = 200 MeV (P = " << KE_to_Momentum(200, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_pion) << endl;
   cout << "<dE/dx> pion KE = 500 MeV (P = " << KE_to_Momentum(500, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_pion) << endl;
   cout << "<dE/dx> proton KE = 20 MeV (P = " << KE_to_Momentum(20, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_proton) << endl;
+  cout << "<dE/dx> proton KE = 200 MeV (P = " << KE_to_Momentum(200, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_proton) << endl;
   cout << "<dE/dx> proton KE = 500 MeV (P = " << KE_to_Momentum(500, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_proton) << endl;
   /*
   KE_to_ResLength_LV(200, mass_muon);
@@ -75,6 +77,8 @@ void ProfileMaker::Execute(){
   //Produce_kappa("proton_0p65cm", mass_proton, 0.65);
   Produce_dEdx_PDF("dEdx_PDF_pion_500MeV_0p65cm", mass_pion, 500, 0.65, 0., 6., 0.22);
   Produce_dEdx_PDF("dEdx_PDF_proton_500MeV_0p65cm", mass_proton, 500, 0.65, 0., 6., 0.25);
+  Produce_dEdx_PDF("dEdx_PDF_pion_200MeV_0p65cm", mass_pion, 200, 0.65, 0., 6., 0.22);
+  Produce_dEdx_PDF("dEdx_PDF_proton_200MeV_0p65cm", mass_proton, 200, 0.65, 2., 8., 0.4);
   Produce_dEdx_PDF("dEdx_PDF_pion_20MeV_0p65cm", mass_pion, 20, 0.65, 4., 8., 0.5);
   Produce_dEdx_PDF("dEdx_PDF_proton_20MeV_0p65cm", mass_proton, 20, 0.65, 23., 28., 1.2);
 
