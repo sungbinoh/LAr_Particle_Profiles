@@ -1,5 +1,7 @@
 #include "dEdx_functions.h"
 
+ROOT::Math::VavilovAccurate vav;
+
 double dEdx_functions::Density_Correction(double beta, double gamma){
   // == Estimate the density correction
   double density_y = TMath::Log10(beta * gamma);
@@ -74,6 +76,49 @@ double dEdx_functions::Get_Landau_xi(double KE, double dx, double mass){
   return xi;
 }
 
+double dEdx_PDF_setting(double *x, double *par){
+
+  // == par[5] = {kappa, beta^2, xi, <dE/dx>BB, width}
+  double a = par[2] / par[4];
+  double b = (0.422784 + par[1] + log(par[0])) * par[2] / par[4] + par[3];
+  double y = (x[0] - b) / a;
+
+  double this_vav = 0.;
+
+  if(par[0] < 0.01){ // == Landau
+    this_vav = TMath::Landau(y);
+  }
+  else if(par[0] > 10.){ // == Gaussian
+    double mu = vav.Mean(par[0], par[1]);
+    double sigma = sqrt(vav.Variance(par[0], par[1]));
+    this_vav =  TMath::Gaus(y, mu, sigma);
+  }
+  else{ // == Vavilov
+    this_vav =  vav.Pdf(y, par[0], par[1]);
+  }
+  
+  return this_vav;
+}
+
+TF1 *dEdx_functions::dEdx_PDF(double *par){
+
+  TF1 *out = new TF1("", dEdx_PDF_setting, -100., 1000., 5);
+  //cout << "[dEdx_functions::dEdx_PDF] par[0] : " << par[0] << ", par[1] : " << par[1] << ", par[2] : " << par[2] << endl;
+  out -> SetParameter(0, par[0]);
+  out -> SetParameter(1, par[1]);
+  out -> SetParameter(2, par[2]);
+  out -> SetParameter(3, par[3]);
+  out -> SetParameter(4, par[4]);
+  out -> SetParameters(par[0], par[1], par[2], par[3], par[4]);
+
+  return out;
+}
+/*
+double dEdx_functions::Get_Kappa(double KE, double dx, double mass){
+  
+
+}
+*/
 dEdx_functions::dEdx_functions(){
 
 }

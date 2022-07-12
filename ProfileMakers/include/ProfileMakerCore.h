@@ -8,6 +8,8 @@
 #include <sstream>
 
 #include "TFile.h"
+#include "TCanvas.h"
+#include "TStyle.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"
@@ -16,6 +18,7 @@
 #include "TH3D.h"
 #include "TGraph.h"
 #include "TRandom.h"
+#include "TLine.h"
 #include "TF1.h"
 #include "TROOT.h"
 

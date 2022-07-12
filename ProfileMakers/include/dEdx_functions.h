@@ -2,13 +2,18 @@
 #define dEdx_functions_h
 
 #include <iostream>
+#include "TF1.h"
 #include "TMath.h"
+#include "Math/VavilovAccurate.h"
 
 using namespace std;
 
 class dEdx_functions{
 
  public:
+
+  //ROOT::Math::VavilovAccurate vav;
+
   // == Bethe-Bloch parameters, https://indico.fnal.gov/event/14933/contributions/28526/attachments/17961/22583/Final_SIST_Paper.pdf
   const double rho = 1.39; // [g/cm3], density of LAr   
   const double K = 0.307075; // [MeV cm2 / mol]
@@ -21,6 +26,8 @@ class dEdx_functions{
   const double density_y1 = 3.0;
   const double density_a = 0.19559;
   const double density_k = 3.0;
+  // == Parameters for Kappa
+  //const 
 
   double Density_Correction(double beta, double gamma);
   double Get_Wmax(double KE, double mass);
@@ -28,6 +35,9 @@ class dEdx_functions{
   double Macroscopic_Xsec(double KE, double mass, double r_param);
   double dEdx_Landau_Vavilov(double KE, double dx, double mass);
   double Get_Landau_xi(double KE, double dx, double mass);
+  // == dEdx PDF
+  //double dEdx_PDF_setting(double *x, double *par);
+  TF1 *dEdx_PDF(double *par);
 
   dEdx_functions();
   virtual ~dEdx_functions();
