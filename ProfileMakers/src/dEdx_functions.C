@@ -64,8 +64,8 @@ double dEdx_functions::dEdx_Landau_Vavilov(double KE, double dx, double mass){
   double xi = rho * dx * 0.5 * K * (18.0 / A) * pow(1. / beta, 2);
   double a0 = 2.0 * Me * pow(beta * gamma, 2) / I;
   //double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ;
-  double this_dpdx = (xi) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ; // == MPV of dE, FWHM = 4xi
-
+  double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ; // == MPV of dE, FWHM = 4xi
+  
   return this_dpdx;
 }
 
@@ -87,6 +87,7 @@ double dEdx_PDF_setting(double *x, double *par){
 
   if(par[0] < 0.01){ // == Landau
     this_vav = TMath::Landau(y);
+    this_vav =  this_vav / a;
   }
   else if(par[0] > 10.){ // == Gaussian
     double mu = vav.Mean(par[0], par[1]);
@@ -95,6 +96,7 @@ double dEdx_PDF_setting(double *x, double *par){
   }
   else{ // == Vavilov
     this_vav =  vav.Pdf(y, par[0], par[1]);
+    this_vav =  this_vav / a;
   }
   
   return this_vav;

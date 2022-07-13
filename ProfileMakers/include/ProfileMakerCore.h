@@ -9,9 +9,11 @@
 
 #include "TFile.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 #include "TStyle.h"
 #include "TLorentzVector.h"
 #include "TString.h"
+#include "TLatex.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TH2D.h"

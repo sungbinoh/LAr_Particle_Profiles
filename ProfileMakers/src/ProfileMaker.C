@@ -24,12 +24,13 @@ void ProfileMaker::Execute(){
   a = KE_to_Momentum(1000., mass_pion);
 
   // == KE to dE/dx BB
-  cout << "<dE/dx> pion KE = 20 MeV (P = " << KE_to_Momentum(20, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_pion) << endl;
-  cout << "<dE/dx> pion KE = 200 MeV (P = " << KE_to_Momentum(200, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_pion) << endl;
-  cout << "<dE/dx> pion KE = 500 MeV (P = " << KE_to_Momentum(500, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_pion) << endl;
-  cout << "<dE/dx> proton KE = 20 MeV (P = " << KE_to_Momentum(20, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_proton) << endl;
-  cout << "<dE/dx> proton KE = 200 MeV (P = " << KE_to_Momentum(200, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_proton) << endl;
-  cout << "<dE/dx> proton KE = 500 MeV (P = " << KE_to_Momentum(500, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_proton) << endl;
+  cout << "<dE/dx> pion KE = 20 MeV (P = " << KE_to_Momentum(20, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(20, 0.65, mass_pion) << endl;
+  cout << "<dE/dx> pion KE = 200 MeV (P = " << KE_to_Momentum(200, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(200, 0.65, mass_pion) << endl;
+  cout << "<dE/dx> pion KE = 500 MeV (P = " << KE_to_Momentum(500, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(500, 0.65, mass_pion) << endl;
+  cout << "<dE/dx> pion KE = 947 MeV (P = " << KE_to_Momentum(947, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(947, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(947, 0.65, mass_pion) << endl;
+  cout << "<dE/dx> proton KE = 20 MeV (P = " << KE_to_Momentum(20, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_proton) << "\t" << dEdx.dEdx_Landau_Vavilov(20, 0.65, mass_proton) << endl;
+  cout << "<dE/dx> proton KE = 200 MeV (P = " << KE_to_Momentum(200, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_proton) << "\t" << dEdx.dEdx_Landau_Vavilov(200, 0.65, mass_proton) << endl;
+  cout << "<dE/dx> proton KE = 500 MeV (P = " << KE_to_Momentum(500, mass_proton) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(500, mass_proton) << "\t" << dEdx.dEdx_Landau_Vavilov(500, 0.65, mass_proton) << endl;
   /*
   KE_to_ResLength_LV(200, mass_muon);
   KE_to_ResLength_LV(300, mass_muon);
@@ -75,12 +76,30 @@ void ProfileMaker::Execute(){
   //Produce_Profile("proton", mass_proton);
   //Produce_kappa("pion_0p65cm", mass_pion, 0.65);
   //Produce_kappa("proton_0p65cm", mass_proton, 0.65);
-  Produce_dEdx_PDF("dEdx_PDF_pion_500MeV_0p65cm", mass_pion, 500, 0.65, 0., 6., 0.22);
-  Produce_dEdx_PDF("dEdx_PDF_proton_500MeV_0p65cm", mass_proton, 500, 0.65, 0., 6., 0.25);
-  Produce_dEdx_PDF("dEdx_PDF_pion_200MeV_0p65cm", mass_pion, 200, 0.65, 0., 6., 0.22);
-  Produce_dEdx_PDF("dEdx_PDF_proton_200MeV_0p65cm", mass_proton, 200, 0.65, 2., 8., 0.4);
-  Produce_dEdx_PDF("dEdx_PDF_pion_20MeV_0p65cm", mass_pion, 20, 0.65, 4., 8., 0.5);
-  Produce_dEdx_PDF("dEdx_PDF_proton_20MeV_0p65cm", mass_proton, 20, 0.65, 23., 28., 1.2);
+ 
+  ///////////////////////////
+  // == Produce PDFs
+  ///////////////////////////
+  Produce_dEdx_PDF("dEdx_PDF_pion_947MeV_0p65cm", mass_pion, 947, 0.65, 1., 5., 2.0);
+
+  Produce_dEdx_PDF("dEdx_PDF_pion_500MeV_0p65cm", mass_pion, 500, 0.65, 1., 5., 2.0);
+  Produce_dEdx_PDF("dEdx_PDF_proton_500MeV_0p65cm", mass_proton, 500, 0.65, 1., 5., 1.5);
+  Produce_dEdx_PDF("dEdx_PDF_pion_200MeV_0p65cm", mass_pion, 200, 0.65, 1., 5., 2.0);
+  Produce_dEdx_PDF("dEdx_PDF_proton_200MeV_0p65cm", mass_proton, 200, 0.65, 2., 8., 1.5);
+  Produce_dEdx_PDF("dEdx_PDF_pion_20MeV_0p65cm", mass_pion, 20, 0.65, 4., 8., 1.5);
+  Produce_dEdx_PDF("dEdx_PDF_proton_20MeV_0p65cm", mass_proton, 20, 0.65, 23., 28., 1.5);
+
+  ///////////////////////////
+  // == Produce Likelihoods
+  ///////////////////////////
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_1p65MeVcm_0p65cm", mass_pion, 1.65, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_1p80MeVcm_0p65cm", mass_pion, 1.80, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_5p99MeVcm_0p65cm", mass_pion, 5.99, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_proton_2p49MeVcm_0p65cm", mass_proton, 2.49, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_proton_4p40MeVcm_0p65cm", mass_proton, 4.40, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_proton_25p2MeVcm_0p65cm", mass_proton, 25.2, 0.65, 10., 30., 2.0);
+
+
 
 }
 
@@ -129,7 +148,7 @@ void ProfileMaker::Produce_Profile(TString name, double mass){
 void ProfileMaker::Produce_kappa(TString name, double mass, double width){
   vector<double> KE_vec;
   vector<double> kappa_vec;
-   for(int i = 0; i < 1000; i++){
+  for(int i = 0; i < 1000; i++){
     double this_KE = 1.+ 2. * (i + 0.);
     double this_xi = dEdx.Get_Landau_xi(this_KE, width, mass);
     double this_Wmax = dEdx.Get_Wmax(this_KE, mass);
@@ -138,37 +157,35 @@ void ProfileMaker::Produce_kappa(TString name, double mass, double width){
     kappa_vec.push_back(this_kappa);
   }
 
-   TCanvas *c = new TCanvas("", "", 800, 600);
-   gStyle->SetOptStat(0);
-   c -> SetLogx();
-   c -> SetLogy();
-   TH1D *template_h = new TH1D("", "", 1., 0.1, 2000.);
-   template_h ->GetXaxis() -> SetTitle("KE [MeV]");
-   template_h ->GetYaxis() -> SetTitle("#kappa ");
-   template_h -> GetYaxis() -> SetRangeUser(0.0001, 1000.);
-   template_h -> Draw();
-   TGraph *KE_kappa = new TGraph(1000, &KE_vec[0], &kappa_vec[0]);
-   KE_kappa -> SetName(name + "_KE_vs_Kappa");
-   KE_kappa -> SetLineColor(kRed);
-   KE_kappa -> SetLineWidth(3);
-   KE_kappa -> Draw("same");
+  TCanvas *c = new TCanvas("", "", 800, 600);
+  gStyle->SetOptStat(0);
+  c -> SetLogx();
+  c -> SetLogy();
+  TH1D *template_h = new TH1D("", "", 1., 0.1, 2000.);
+  template_h ->GetXaxis() -> SetTitle("KE [MeV]");
+  template_h ->GetYaxis() -> SetTitle("#kappa ");
+  template_h -> GetYaxis() -> SetRangeUser(0.0001, 1000.);
+  template_h -> Draw();
+  TGraph *KE_kappa = new TGraph(1000, &KE_vec[0], &kappa_vec[0]);
+  KE_kappa -> SetName(name + "_KE_vs_Kappa");
+  KE_kappa -> SetLineColor(kRed);
+  KE_kappa -> SetLineWidth(3);
+  KE_kappa -> Draw("same");
+  TLine *line1 = new TLine(0.1, 0.01, 2000., 0.01);
+  line1 -> SetLineColor(kBlue);
+  line1 -> SetLineStyle(7);
+  line1 -> Draw("same");
+  TLine *line2 = new TLine(0.1, 10., 2000., 10.);
+  line2 -> SetLineColor(kBlue);
+  line2 -> SetLineStyle(7);
+  line2 -> Draw("same");
 
-   TLine *line1 = new TLine(0.1, 0.01, 2000., 0.01);
-   line1 -> SetLineColor(kBlue);
-   line1 -> SetLineStyle(7);
-   line1 -> Draw("same");
+  c -> SaveAs("./output/" + name + "_KE_vs_Kappa.pdf");
 
-   TLine *line2 = new TLine(0.1, 10., 2000., 10.);
-   line2 -> SetLineColor(kBlue);
-   line2 -> SetLineStyle(7);
-   line2 -> Draw("same");
+  KE_kappa -> Write();
 
-   c -> SaveAs("./output/" + name + "_KE_vs_Kappa.pdf");
-
-   KE_kappa -> Write();
-
-   KE_vec.clear();
-   kappa_vec.clear();
+  KE_vec.clear();
+  kappa_vec.clear();
 }
 
 void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double width, double xmin, double xmax, double ymax){
@@ -195,9 +212,106 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   template_h -> GetYaxis() -> SetRangeUser(0., ymax);
   template_h -> Draw();
 
+  double this_MPV =  dEdx.dEdx_Landau_Vavilov(KE, width, mass);
+  TLine *l_mean = new TLine(this_dEdx_BB, 0., this_dEdx_BB, ymax);
+  l_mean -> SetLineColor(kGreen);
+  l_mean -> SetLineStyle(7);
+  l_mean -> SetLineWidth(3);
+  l_mean -> Draw("same");
+  TLine *l_MPV = new TLine(this_MPV, 0., this_MPV, ymax);
+  l_MPV -> SetLineColor(kBlue);
+  l_MPV -> SetLineStyle(6);
+  l_MPV -> Draw("same");
+  
   this_PDF -> Draw("lsame");
+  cout << "[ProfileMaker::Produce_dEdx_PDF] Integral : " << this_PDF -> Integral(0., 100.) << endl;
+
+  TLegend *l = new TLegend(0.6, 0.6, 0.85, 0.85);
+  l -> AddEntry(l_mean, "<dE/dx>", "l");
+  l -> AddEntry(l_MPV, "(dE/dx)_{MPV}", "l");
+  l -> SetLineColor(kWhite);
+  l -> Draw("same");
+
+  TLatex latex_kappa, latex_info;
+  latex_kappa.SetNDC();
+  latex_info.SetNDC();
+  latex_kappa.SetTextSize(0.040);
+  latex_info.SetTextSize(0.040);
+  TString PDF_region_str = "";
+  if(this_kappa < 0.01) PDF_region_str = "Landau";
+  else if(this_kappa > 10.) PDF_region_str = "Gaussain";
+  else PDF_region_str = "Vavilov";
+  TString kappa_str = Form("%.3f", this_kappa);
+  TString width_str = Form("%.2f", width);
+  latex_kappa.DrawLatex(0.10, 0.92, "#kappa = " + kappa_str + " (" + PDF_region_str + ")");
+  latex_info.DrawLatex(0.52, 0.92, "LAr, #rho = 1.39 g/cm^{3}, #deltax = " + width_str);
 
   c -> SaveAs("./output/" + name + "_dEdx_PDF.pdf");
+
+}
+
+void ProfileMaker::Produce_dEdx_likelihood(TString name, double mass, double dEdx_value, double width, double xmin, double xmax, double ymax){
+
+  vector<double> KE_vec;
+  vector<double> likelihood_vec;
+
+  double maxium_l = -1.;
+  double maximum_l_KE = 1.;
+  for(int i = 0; i < 20000; i++){
+    double this_KE = 1.+ 0.1 * (i + 0.);
+  
+    double gamma = (this_KE/mass)+1.0;
+    double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
+  
+    double this_xi = dEdx.Get_Landau_xi(this_KE, width, mass);
+    double this_Wmax = dEdx.Get_Wmax(this_KE, mass);
+    double this_kappa = this_xi / this_Wmax;
+    double this_dEdx_BB = dEdx.dEdx_Bethe_Bloch(this_KE, mass);
+    double par[5] = {this_kappa, beta * beta, this_xi, this_dEdx_BB, width};
+    TF1 *this_PDF = dEdx.dEdx_PDF(par);
+    double this_likelihood = this_PDF -> Eval(dEdx_value);
+
+    KE_vec.push_back(this_KE);
+    likelihood_vec.push_back(this_likelihood);
+    if(maxium_l < this_likelihood){
+      maxium_l = this_likelihood;
+      maximum_l_KE = this_KE;
+    }
+  }
+  
+ 
+  TCanvas *c = new TCanvas("", "", 800, 600);
+  //c -> SetLogx();
+  gStyle->SetOptStat(0);
+
+  double y_max = *max_element(likelihood_vec.begin(), likelihood_vec.end());
+  TH1D *template_h = new TH1D("", "", 1., xmin, xmax);
+  template_h ->GetXaxis() -> SetTitle("KE [MeV]");
+  template_h ->GetYaxis() -> SetTitle("Likelihood");
+  template_h -> GetYaxis() -> SetRangeUser(0., y_max * 1.3);
+  template_h -> Draw();
+
+  TGraph *L_gr = new TGraph(20000, &KE_vec[0], &likelihood_vec[0]);
+  L_gr -> SetName(name + "_KE_vs_Kappa");
+  L_gr -> SetLineColor(kRed);
+  L_gr -> SetLineWidth(3);
+  L_gr -> Draw("same");
+
+  TString max_KE_str = Form("%.1f", maximum_l_KE);
+  TLine *l_max = new TLine(maximum_l_KE, 0., maximum_l_KE, y_max);
+  l_max -> SetLineColor(kBlue);
+  l_max -> SetLineStyle(7);
+  l_max -> Draw("same");
+  
+  TLegend *l = new TLegend(0.30, 0.75, 0.90, 0.90);
+  l -> AddEntry(l_max, "Maximum Likelihood KE : " + max_KE_str + " [MeV]", "l");
+  //l -> SetLineColor(kWhite);
+  l -> Draw("same");
+
+  c -> SaveAs("./output/" + name + "_KE_Likelihood.pdf");
+ 
+  KE_vec.clear();
+  likelihood_vec.clear();
 
 }
 
