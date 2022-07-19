@@ -94,6 +94,8 @@ void ProfileMaker::Execute(){
   ///////////////////////////
   Produce_dEdx_likelihood("dEdx_likelihood_pion_1p65MeVcm_0p65cm", mass_pion, 1.65, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_pion_1p80MeVcm_0p65cm", mass_pion, 1.80, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_5p75MeVcm_0p65cm", mass_pion, 5.75, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_5p88MeVcm_0p65cm", mass_pion, 5.88, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_pion_5p99MeVcm_0p65cm", mass_pion, 5.99, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_proton_2p49MeVcm_0p65cm", mass_proton, 2.49, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_proton_4p40MeVcm_0p65cm", mass_proton, 4.40, 0.65, 1., 2000., 2.0);
@@ -202,7 +204,7 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   cout << "[ProfileMaker::Produce_dEdx_PDF] par[0] : " << par[0] << ", par[1] : " << par[1] << endl;
 
   TF1 *this_PDF = dEdx.dEdx_PDF(par);
-
+  cout << "[ProfileMaker::Produce_dEdx_PDF] this_PDF -> Eval(2.1) : " << this_PDF -> Eval(2.1) << endl;
   TCanvas *c = new TCanvas("", "", 800, 600);
   gStyle->SetOptStat(0);
   //c -> SetLogx();
@@ -281,7 +283,7 @@ void ProfileMaker::Produce_dEdx_likelihood(TString name, double mass, double dEd
   
  
   TCanvas *c = new TCanvas("", "", 800, 600);
-  //c -> SetLogx();
+  c -> SetLogx();
   gStyle->SetOptStat(0);
 
   double y_max = *max_element(likelihood_vec.begin(), likelihood_vec.end());
