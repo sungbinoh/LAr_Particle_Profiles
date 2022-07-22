@@ -505,88 +505,116 @@ void Draw_MC_daughter_shape_comparison(TString filename, TString histname, TStri
 void Draw_PionXsec_plots(){
 
   setTDRStyle();
-
+  TString file_suffix = "_noBeamXY.root";
   // ==== Data vs MC
   // == After beam cuts
-  /*
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "2.0", 1000., 3000., 20.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "2.0", 1000., 3000., 20.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "2.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "CaloSize", "Pass CaloSize", "2.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "2.0", 0., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "2.0", -1., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "2.0", 0., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "2.0", 0., 600., 10.);
+
+ /*
   Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "2.0", 0., 2000., 20.);
   Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "BeamKE", "KE_{Beam Inst.} (MeV)", "2.0", 0., 2000., 20.);
   Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "Beam_alt_length", "Track Length (cm)", "2.0", 0., 600., 10.);
   Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "daughter_michel_score", "Michel Score", "2.0", 0., 1., 1.);
   */
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "BeamKE", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "PandoraSlice", "Pass PandoraSlice", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "CaloSize", "Pass CaloSize", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_costh", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "daughter_michel_score", "Daughter Michel Score", "1.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "Beam_alt_length", "Track Length (cm)", "1.0", 0., 600., 10.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "1.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "CaloSize", "Pass CaloSize", "1.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "1.0", 0., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "1.0", 0., 600., 10.);
 
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 1000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "BeamKE", "KE_{Beam Inst.} (MeV)", "0.5", 0., 1000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "PandoraSlice", "Pass PandoraSlice", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "CaloSize", "Pass CaloSize", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_costh", "cos#theta_{Beam Track}", "0.5", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "daughter_michel_score", "Daughter Michel Score", "0.5", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "Beam_alt_length", "Track Length (cm)", "0.5", 0., 600., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 1000., 20.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "0.5", 0., 1000., 20.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "0.5", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "CaloSize", "Pass CaloSize", "0.5", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "0.5", -1., 1., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "0.5", 0., 1., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "0.5", 0., 600., 10.);
 
   //Draw_MC_vs_Data("_PionXsec_0.3GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "0.3", 0., 1000., 20.);
 
   // == Before beam cuts
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "PandoraSlice_precut", "Pass PandoraSlice", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "CaloSize_precut", "Pass CaloSize", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "beam_costh_precut", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "daughter_michel_score_precut", "Daughter Michel Score", "1.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV.root", "chi2_proton_precut", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "2.0", 1000., 3000., 20.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "2.0", 1000., 3000., 20.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "2.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "2.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "2.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "2.0", 0., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "2.0", -1., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "2.0", 0., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
 
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "0.5", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "PandoraSlice_precut", "Pass PandoraSlice", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "CaloSize_precut", "Pass CaloSize", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "beam_costh_precut", "cos#theta_{Beam Track}", "0.5", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "daughter_michel_score_precut", "Daughter Michel Score", "0.5", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV.root", "chi2_proton_precut", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "1.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "1.0", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "1.0", 0., 1., 1.);
+  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
+
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "0.5", 0., 2000., 20.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "0.5", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "0.5", 0., 2., 1.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "0.5", -1., 1., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "0.5", 0., 1., 10.);
+  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
 
   // ==== Draw 2D plots
-  Draw_2D_MC_and_Data("_PionXsec_1.0GeV.root", "beam_inst_XY_precut", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
-  Draw_2D_MC_and_Data("_PionXsec_1.0GeV.root", "beam_inst_XY", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
+  Draw_2D_MC_and_Data("_PionXsec_1.0GeV" + file_suffix, "beam_inst_XY_precut", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
+  Draw_2D_MC_and_Data("_PionXsec_1.0GeV" + file_suffix, "beam_inst_XY", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
+
+  Draw_2D_MC_and_Data("_PionXsec_0.5GeV" + file_suffix, "beam_inst_XY_precut", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "0.5", -50, 10, 20., 400., 440., 20.);
+  Draw_2D_MC_and_Data("_PionXsec_0.5GeV" + file_suffix, "beam_inst_XY", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "0.5", -50, 10, 20., 400., 440., 20.);
 
   // ==== MC shape comparison
-  Draw_MC_shape_comparison("_PionXsec_2.0GeV.root", "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_2.0GeV.root", "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_1.0GeV.root", "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_1.0GeV.root", "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_0.5GeV.root", "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_0.5GeV.root", "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
 
   // ==== MC daughter shape comparison
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV.root", "trackScore", "Track Score", "2.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV.root", "emScore", "e/#gamma Score", "2.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV.root", "chi2_proton", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV.root", "trackScore", "Track Score", "1.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV.root", "emScore", "e/#gamma Score", "1.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV.root", "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV.root", "trackScore", "Track Score", "0.5", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV.root", "emScore", "e/#gamma Score", "0.5", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV.root", "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "trackScore", "Track Score", "2.0", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "emScore", "e/#gamma Score", "2.0", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "trackScore", "Track Score", "1.0", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "emScore", "e/#gamma Score", "1.0", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "trackScore", "Track Score", "0.5", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "emScore", "e/#gamma Score", "0.5", 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
 }
