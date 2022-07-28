@@ -60,10 +60,10 @@ void Fit_Beam_P_Data_and_MC(TString filename, TString beam_P, double xmin, doubl
   hist_data -> Draw("histsame");
   hist_mc_sum_beam_inst -> Draw("histsame");
   hist_mc_sum_beam_true -> Draw("histsame");
-  double data_fit_x_min = hist_data -> GetMean() - 1.5 * hist_data -> GetRMS();
-  double data_fit_x_max = hist_data -> GetMean() + 1.5 * hist_data -> GetRMS();
-  double mc_fit_x_min = hist_mc_sum_beam_inst -> GetMean() - 1.5 * hist_mc_sum_beam_inst -> GetRMS();
-  double mc_fit_x_max = hist_mc_sum_beam_inst -> GetMean() + 1.5 * hist_mc_sum_beam_inst -> GetRMS();
+  double data_fit_x_min = hist_data -> GetMean() - 2.0 * hist_data -> GetRMS();
+  double data_fit_x_max = hist_data -> GetMean() + 2.0 * hist_data -> GetRMS();
+  double mc_fit_x_min = hist_mc_sum_beam_inst -> GetMean() - 2.0 * hist_mc_sum_beam_inst -> GetRMS();
+  double mc_fit_x_max = hist_mc_sum_beam_inst -> GetMean() + 2.0 * hist_mc_sum_beam_inst -> GetRMS();
   double mc_true_fit_x_min = hist_mc_sum_beam_true -> GetMean() - 1.5 * hist_mc_sum_beam_true -> GetRMS();
   double mc_true_fit_x_max = hist_mc_sum_beam_true -> GetMean() + 1.5 * hist_mc_sum_beam_true -> GetRMS();
 
@@ -103,8 +103,10 @@ void Fit_Beam_P_Data_and_MC(TString filename, TString beam_P, double xmin, doubl
 
   double data_conv_mu = data_gaus -> GetParameter(1) - mc_true_gaus -> GetParameter(1);
   double data_conv_sigma = sqrt(pow(data_gaus -> GetParameter(2), 2) - pow(mc_true_gaus -> GetParameter(2), 2));
+  double mc_conv_mu = mc_gaus -> GetParameter(1) - mc_true_gaus -> GetParameter(1);
+  double mc_conv_sigma = sqrt(pow(mc_gaus -> GetParameter(2), 2) - pow(mc_true_gaus -> GetParameter(2), 2));
   cout << "data conv (mu, sigma) = () : (" << data_conv_mu << ", " << data_conv_sigma << "), sigma / <P> = " << data_conv_sigma / mc_true_gaus -> GetParameter(1)<< endl;
-
+  cout << "mc conv (mu, sigma) = () : (" << mc_conv_mu << ", " << mc_conv_sigma << "), sigma / <P> = " << mc_conv_sigma / mc_true_gaus -> GetParameter(1)<< endl;
 
   c -> SaveAs("./output/plots/PionXsec/Beam_P_fitting/Beam_" + beam_P + "GeV_P_fit_Data_and_MC.pdf");
 
@@ -175,10 +177,10 @@ void Fit_Beam_P_Data_and_MC(TString filename, TString beam_P, double xmin, doubl
   hist_pion_true -> SetLineColor(kBlue);
   hist_pion -> Draw("histsame");
   hist_pion_true -> Draw("histsame");
-  double pion_fit_x_min = hist_pion -> GetMean() - 1.5 * hist_pion -> GetRMS();
-  double pion_fit_x_max = hist_pion -> GetMean() + 1.5 * hist_pion -> GetRMS();
-  double pion_true_fit_x_min = hist_pion_true -> GetMean() - 1.5 * hist_pion_true -> GetRMS();
-  double pion_true_fit_x_max = hist_pion_true -> GetMean() + 1.5 * hist_pion_true -> GetRMS();
+  double pion_fit_x_min = hist_pion -> GetMean() - 2.0 * hist_pion -> GetRMS();
+  double pion_fit_x_max = hist_pion -> GetMean() + 2.0 * hist_pion -> GetRMS();
+  double pion_true_fit_x_min = hist_pion_true -> GetMean() - 2.0 * hist_pion_true -> GetRMS();
+  double pion_true_fit_x_max = hist_pion_true -> GetMean() + 2.0 * hist_pion_true -> GetRMS();
 
   TF1 *pion_gaus = new TF1("pion_gaus", "gaus", pion_fit_x_min, pion_fit_x_max);
   TF1 *pion_true_gaus = new TF1("pion_true_gaus", "gaus", pion_true_fit_x_min, pion_true_fit_x_max);
@@ -216,10 +218,138 @@ void Fit_Beam_P_Data_and_MC(TString filename, TString beam_P, double xmin, doubl
 
 }
 
+void Fit_BeamP_Res_MC(TString filename, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double fit_x_min, double fit_x_max, double rebin){
 
+  TString input_file_dir = getenv("LArProf_WD");
+  TString root_file_path =input_file_dir + "/output/root/";
+  TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  for(int i = 0; i < N_pi_type; i++){
+    TString this_hist_name = Form("htrack_" + histname + "_%d", i);
+    maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+    maphist[this_hist_name] -> Rebin(rebin);
+  }
+  TH1D *hist_mc_sum_beam_res = (TH1D*)maphist["htrack_" + histname + "_1"] -> Clone();
+  for(int i = 2; i < N_pi_type; i++){
+    TString this_hist_name = Form("htrack_" + histname + "_%d", i);
+    hist_mc_sum_beam_res -> Add(maphist[this_hist_name]);
+  }
+  hist_mc_sum_beam_res -> Scale(1. / hist_mc_sum_beam_res -> Integral());
+  double this_max = hist_mc_sum_beam_res -> GetMaximum();
+  cout << "[Fit_BeamP_Res_MC] this_max : " << this_max << endl;
+  TCanvas *c = new TCanvas("", "", 600, 800);
+  canvas_margin(c);
+  gStyle -> SetOptStat(1111);
+  
+  TH1D *template_h = new TH1D("", "", 1, xmin, xmax);
+  gStyle->SetOptTitle(0);
+  gStyle->SetLineWidth(2);
+  template_h -> SetStats(0);
+  template_h -> GetXaxis() -> SetTitle(TitleX);
+  template_h -> GetXaxis() -> SetTitleSize(0.05);
+  template_h -> GetXaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetTitle("A.U.");
+  template_h -> GetYaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetRangeUser(0., this_max * 1.5);
+  template_h -> Draw();
+
+  hist_mc_sum_beam_res -> SetLineColor(kBlue);
+  hist_mc_sum_beam_res -> Draw("histsame");
+
+  TF1 *this_gaus = new TF1("this_gaus", "gaus", fit_x_min, fit_x_max);
+  this_gaus -> SetLineColor(kCyan);
+  this_gaus -> SetLineStyle(7);
+  this_gaus -> SetLineWidth(3);
+  hist_mc_sum_beam_res -> Fit(this_gaus, "R", "", fit_x_min, fit_x_max);
+  this_gaus -> Draw("lsame");
+
+  TLegend *l = new TLegend(0.20, 0.72, 0.90, 0.92);
+  l -> SetFillColor(kWhite);
+  l -> SetLineColor(kWhite);
+  l -> SetBorderSize(1);
+  l -> SetFillStyle(4000);
+  l -> SetShadowColor(0);
+  l -> AddEntry(hist_mc_sum_beam_res, "#Delta p / p_{True}", "l");
+  l -> AddEntry(this_gaus, Form("#mu : %.3f, #sigma : %.4f", this_gaus -> GetParameter(1), this_gaus -> GetParameter(2)), "l");
+  l -> Draw("same");
+  
+  c -> SaveAs("./output/plots/PionXsec/Beam_P_fitting/BeamP_Res_" + beam_P + "GeV.pdf");
+
+  // ==== Draw pion and muon beam
+  // == Call histograms
+  TH1D *hist_muon = (TH1D*)maphist["htrack_" + histname + "_3"] -> Clone();
+  TH1D *hist_pion = (TH1D*)maphist["htrack_" + histname + "_1"] -> Clone();
+  hist_pion -> Add(maphist["htrack_" + histname + "_2"]);
+
+  hist_muon -> Scale(1.0 / hist_muon -> Integral());
+  hist_pion -> Scale(1.0 / hist_pion -> Integral());
+
+  // == muon
+  double muon_max = hist_muon -> GetMaximum();
+  template_h -> GetYaxis() -> SetRangeUser(0., muon_max * 1.5);
+  template_h -> Draw();
+  hist_muon -> SetLineColor(kBlue);
+  hist_muon -> Draw("histsame");
+  double muon_fit_x_min = hist_muon -> GetMean() - 1.5 * hist_muon -> GetRMS();
+  double muon_fit_x_max = hist_muon -> GetMean() + 1.5 * hist_muon -> GetRMS();
+
+  TF1 *muon_gaus = new TF1("muon_gaus", "gaus", muon_fit_x_min, muon_fit_x_max);
+  muon_gaus -> SetLineColor(kCyan);
+  muon_gaus -> SetLineStyle(7);
+  muon_gaus -> SetLineWidth(3);
+  hist_muon -> Fit(muon_gaus, "R", "", muon_fit_x_min, muon_fit_x_max);
+  muon_gaus -> Draw("lsame");
+
+  TLegend *l_muon = new TLegend(0.20, 0.72, 0.90, 0.92);
+  l_muon -> SetFillColor(kWhite);
+  l_muon -> SetLineColor(kWhite);
+  l_muon -> SetBorderSize(1);
+  l_muon -> SetFillStyle(4000);
+  l_muon -> SetShadowColor(0);
+  l_muon -> AddEntry(hist_muon, "#Delta p / p_{True}", "l");
+  l_muon -> AddEntry(muon_gaus, Form("#mu : %.3f, #sigma : %.4f", muon_gaus -> GetParameter(1), muon_gaus -> GetParameter(2)), "l");
+  l_muon -> Draw("same");
+
+  c -> SaveAs("./output/plots/PionXsec/Beam_P_fitting/BeamP_Res_" + beam_P + "GeV_muon.pdf");
+
+  // == pion
+  double pion_max = hist_pion -> GetMaximum();
+  template_h -> GetYaxis() -> SetRangeUser(0., pion_max * 1.5);
+  template_h -> Draw();
+  hist_pion -> SetLineColor(kBlue);
+  hist_pion -> Draw("histsame");
+  double pion_fit_x_min = hist_pion -> GetMean() - 1.5 * hist_pion -> GetRMS();
+  double pion_fit_x_max = hist_pion -> GetMean() + 1.5 * hist_pion -> GetRMS();
+
+  TF1 *pion_gaus = new TF1("pion_gaus", "gaus", pion_fit_x_min, pion_fit_x_max);
+  pion_gaus -> SetLineColor(kCyan);
+  pion_gaus -> SetLineStyle(7);
+  pion_gaus -> SetLineWidth(3);
+  hist_pion -> Fit(pion_gaus, "R", "", pion_fit_x_min, pion_fit_x_max);
+  pion_gaus -> Draw("lsame");
+
+  TLegend *l_pion = new TLegend(0.20, 0.72, 0.90, 0.92);
+  l_pion -> SetFillColor(kWhite);
+  l_pion -> SetLineColor(kWhite);
+  l_pion -> SetBorderSize(1);
+  l_pion -> SetFillStyle(4000);
+  l_pion -> SetShadowColor(0);
+  l_pion -> AddEntry(hist_pion, "#Delta p / p_{True}", "l");
+  l_pion -> AddEntry(pion_gaus, Form("#mu : %.3f, #sigma : %.4f", pion_gaus -> GetParameter(1), pion_gaus -> GetParameter(2)), "l");
+  l_pion -> Draw("same");
+
+  c -> SaveAs("./output/plots/PionXsec/Beam_P_fitting/BeamP_Res_" + beam_P + "GeV_pion.pdf");
+
+  c -> Close();  
+
+}
 
 
 void Fit_Beam_P(){
+
+  cout << "============================" << endl;
+  cout << "============START===========" << endl;
+  cout << "============================" << endl;
+
 
   setTDRStyle();
   TString file_suffix = "_noBeamXY.root";
@@ -228,6 +358,9 @@ void Fit_Beam_P(){
   Fit_Beam_P_Data_and_MC("_PionXsec_1.0GeV" + file_suffix, "1.0", 0., 1500., 10.);
   Fit_Beam_P_Data_and_MC("_PionXsec_2.0GeV" + file_suffix, "2.0", 0., 2500., 10.);
 
- 
+  Fit_BeamP_Res_MC("_PionXsec_0.5GeV" + file_suffix, "BeamP_Res_precut", "(P_{True} - P_{Beam Inst.}) / P_{True}", "0.5", -0.2, 0.2, -0.05, 0.05, 10.);
+  Fit_BeamP_Res_MC("_PionXsec_1.0GeV" + file_suffix, "BeamP_Res_precut", "(P_{True} - P_{Beam Inst.}) / P_{True}", "1.0", -0.2, 0.2, -0.05, 0.05, 1.); 
+  Fit_BeamP_Res_MC("_PionXsec_2.0GeV" + file_suffix, "BeamP_Res_precut", "(P_{True} - P_{Beam Inst.}) / P_{True}", "2.0", -0.2, 0.2, -0.05, 0.05, 10.);
+
 }
 

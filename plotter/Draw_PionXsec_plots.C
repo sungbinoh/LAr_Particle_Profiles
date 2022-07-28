@@ -65,34 +65,38 @@ void Draw_MC_vs_FakeData(TString filename, TString histname, TString TitleX, dou
 
 }
 
-void Draw_MC_vs_Data(TString filename, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
+void Draw_MC_vs_Data(TString filename, TString dir, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
 
   double mc_scale = 1.;
-  //mc_scale = 1.5440743 * 2.;
-
   TString input_file_dir = getenv("LArProf_WD");
   TString root_file_path =input_file_dir + "/output/root/";
   TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  double N_mc_isSelectedPart = ((TH1D*)gDirectory -> Get("Cutflow")) -> GetBinContent(1);
+  gDirectory -> Cd(dir);
   for(int i = 0; i < N_pi_type; i++){
     TString this_hist_name = Form("htrack_" + histname + "_%d", i);
-    maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
-    //maphist[this_hist_name] -> Scale(mc_scale);
-    maphist[this_hist_name] -> Rebin(rebin);
+    if((TH1D*)gDirectory -> Get(this_hist_name)){
+      maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+      maphist[this_hist_name] -> Rebin(rebin);
+    }
+    else maphist[this_hist_name] = nullptr;
   }
-  double N_mc_isSelectedPart = ((TH1D*)gDirectory -> Get("Cutflow")) -> GetBinContent(1);
 
   TFile *f_data = new TFile(root_file_path + "data" + filename);
+  double N_data_isSelectedPart = ((TH1D*)gDirectory -> Get("Cutflow")) -> GetBinContent(1);
+  gDirectory -> cd(dir);
   TH1D *hist_data = (TH1D*)gDirectory -> Get("htrack_" + histname + "_0") -> Clone();
   hist_data -> Rebin(rebin);
   double data_max = hist_data -> GetMaximum();
-  double N_data_isSelectedPart = ((TH1D*)gDirectory -> Get("Cutflow")) -> GetBinContent(1);
 
   mc_scale = 2.0 * N_data_isSelectedPart / N_mc_isSelectedPart;
+  //mc_scale = 2.0 * 119545.00 / 156701.00;
   for(int i = 0; i < N_pi_type; i++){
     TString this_hist_name = Form("htrack_" + histname + "_%d", i);
-    maphist[this_hist_name] -> Scale(mc_scale);
+    if(maphist[this_hist_name] != nullptr){
+      maphist[this_hist_name] -> Scale(mc_scale);
+    }
   }
-
 
   TString title_y = "Events";
   TString nameofhistogram = histname + "Draw_MC_vs_Data" + beam_P;
@@ -154,13 +158,15 @@ void Draw_MC_vs_Data(TString filename, TString histname, TString TitleX, TString
   TH1D * mc_sum = (TH1D*)maphist["htrack_" + histname + "_1"] -> Clone();
   for(int i = 1; i < N_pi_type; i++){
     TString this_hist_name = Form("htrack_" + histname + "_%d", i);
-    TString this_N_event = Form("%.1f", maphist[this_hist_name] -> Integral());
-    TString this_legend_str = pi_type_str[i] + " " + this_N_event;
-    if(i != 1) mc_sum -> Add(maphist[this_hist_name]);
-    maphist[this_hist_name] -> SetLineColor(colour_array[i]);
-    maphist[this_hist_name] -> SetFillColor(colour_array[i]);
-    maphstack[hstack] -> Add(maphist[this_hist_name]);
-    maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "f");
+    if(maphist[this_hist_name] != nullptr){    
+      TString this_N_event = Form("%.1f", maphist[this_hist_name] -> Integral());
+      TString this_legend_str = pi_type_str[i] + " " + this_N_event;
+      if(i != 1) mc_sum -> Add(maphist[this_hist_name]);
+      maphist[this_hist_name] -> SetLineColor(colour_array[i]);
+      maphist[this_hist_name] -> SetFillColor(colour_array[i]);
+      maphstack[hstack] -> Add(maphist[this_hist_name]);
+      maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "f");
+    }
   }
   TString mc_sum_N_event = Form("%.1f", mc_sum -> Integral());
   mc_sum -> SetLineColor(kWhite);
@@ -245,7 +251,7 @@ void Draw_MC_vs_Data(TString filename, TString histname, TString TitleX, TString
   latex_data_POT.DrawLatex(0.63, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
   TString pdfname;
   TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/MC_vs_Data_" + histname + "_" + beam_P + "GeV.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/MC_vs_Data/MC_vs_Data_" + histname + "_" + beam_P + "GeV.pdf";
   mapcanvas[canvas] -> SaveAs(pdfname);
 
   f_mc -> Close();
@@ -310,7 +316,7 @@ void Draw_2D_MC_and_Data(TString filename, TString histname, TString TitleX, TSt
 
   TString pdfname;
   TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Draw_2D_MC_" + histname + "_" + beam_P + "GeV.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/2D/Draw_2D_MC_" + histname + "_" + beam_P + "GeV.pdf";
   c -> SaveAs(pdfname);
 
   template_h -> Draw("colz");
@@ -318,7 +324,7 @@ void Draw_2D_MC_and_Data(TString filename, TString histname, TString TitleX, TSt
   latex_data_POT.DrawLatex(0.56, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
   hist_data -> Draw("colzsame");
   //gPad->RedrawAxis();
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Draw_2D_Data_" + histname + "_" + beam_P + "GeV.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/2D/Draw_2D_Data_" + histname + "_" + beam_P + "GeV.pdf";
   c -> SaveAs(pdfname);
 
   c -> Close();
@@ -327,7 +333,7 @@ void Draw_2D_MC_and_Data(TString filename, TString histname, TString TitleX, TSt
   
 }
 
-void Draw_MC_shape_comparison(TString filename, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
+void Draw_MC_shape_comparison(TString filename, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin, double ymax){
 
   TString input_file_dir = getenv("LArProf_WD");
   TString root_file_path =input_file_dir + "/output/root/";
@@ -372,7 +378,7 @@ void Draw_MC_shape_comparison(TString filename, TString histname, TString TitleX
   template_h -> GetYaxis() -> SetTitle("A.U.");
   template_h -> GetYaxis() -> SetLabelSize(0.035);
   template_h -> GetYaxis() -> SetRangeUser(0., mc_max * 1.5);
-  template_h -> GetYaxis() -> SetRangeUser(0., 0.4);
+  template_h -> GetYaxis() -> SetRangeUser(0., ymax);
   template_h -> Draw();
   
   maplegend[legend] = new TLegend(0.20, 0.70, 0.90, 0.90);
@@ -410,27 +416,32 @@ void Draw_MC_shape_comparison(TString filename, TString histname, TString TitleX
   latex_data_POT.DrawLatex(0.61, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
   TString pdfname;
   TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/MC_comparison_" + histname + "_" + beam_P + "GeV.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/MC_comparison/MC_comparison_" + histname + "_" + beam_P + "GeV.pdf";
   mapcanvas[canvas] -> SaveAs(pdfname);
 
   f_mc -> Close();
 }
 
-void Draw_MC_daughter_shape_comparison(TString filename, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
+void Draw_MC_daughter_shape_comparison(TString filename, TString dir, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
 
   TString input_file_dir = getenv("LArProf_WD");
   TString root_file_path =input_file_dir + "/output/root/";
   TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  gDirectory -> cd(dir);
   double mc_max = -1.;
-  const int N_PDGs = 3;
-  TString PDGs_str[N_PDGs] = {"proton", "pion", "other"};
+  const int N_PDGs = 4;
+  TString PDGs_str[N_PDGs] = {"proton", "pion", "muon", "other"};
   for(int i = 0; i < N_PDGs; i++){
     TString this_hist_name = "hdaughter_" + PDGs_str[i] + "_" + histname;
-    maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
-    maphist[this_hist_name] -> Rebin(rebin);
-    maphist[this_hist_name] -> Scale(1. / maphist[this_hist_name] -> Integral());
-    double this_max = maphist[this_hist_name] -> GetMaximum();
-    if(mc_max < this_max) mc_max = this_max;
+    cout << "[Draw_MC_daughter_shape_comparison] " << this_hist_name << endl;
+    if((TH1D*)gDirectory -> Get(this_hist_name)){
+	maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+	maphist[this_hist_name] -> Rebin(rebin);
+	maphist[this_hist_name] -> Scale(1. / maphist[this_hist_name] -> Integral());
+	double this_max = maphist[this_hist_name] -> GetMaximum();
+	if(mc_max < this_max) mc_max = this_max;
+    }
+    else maphist[this_hist_name] = nullptr;
   }
 
   TString nameofhistogram = histname + "Draw_MC_shape_comparison" + beam_P;
@@ -472,12 +483,114 @@ void Draw_MC_daughter_shape_comparison(TString filename, TString histname, TStri
   maplegend[legend] -> SetEntrySeparation(0.3);
   maplegend[legend] -> SetNColumns(3);
 
-  Int_t colour_array[] = {632, 800, 867, 600, 416, 901, 432, 400, 920};
+  Int_t colour_array[] = {632, 800, 867, 416, 901, 432, 400, 920};
   for(int i = 0; i < N_PDGs; i++){
     TString this_hist_name = "hdaughter_" + PDGs_str[i] + "_" + histname;
     TString this_legend_str = PDGs_str[i];
+    if(maphist[this_hist_name] != nullptr){
+      maphist[this_hist_name] -> SetLineColor(colour_array[i]);
+      maphist[this_hist_name] -> SetLineStyle(i + 1);
+      maphist[this_hist_name] -> SetLineWidth(4);
+      maphist[this_hist_name] -> Draw("histsame");
+      maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "l");
+    }
+  }
+  maplegend[legend] -> Draw("same");
+
+  gPad->RedrawAxis();
+
+  mapcanvas[canvas] -> cd();
+  TLatex latex_ArgoNeuT, latex_data_POT;
+  latex_ArgoNeuT.SetNDC();
+  latex_data_POT.SetNDC();
+  latex_ArgoNeuT.SetTextSize(0.035);
+  latex_data_POT.SetTextSize(0.035);
+  latex_ArgoNeuT.DrawLatex(0.15, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.61, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  TString pdfname;
+  TString WORKING_DIR = getenv("LArProf_WD");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Daughters/MC_daughter_comparison_" + histname + "_" + beam_P + "GeV.pdf";
+  mapcanvas[canvas] -> SaveAs(pdfname);
+
+  f_mc -> Close();
+}
+
+void Draw_MC_daughter_cutflow(TString filename, TString dir, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin, bool draw_eff){
+
+  TString input_file_dir = getenv("LArProf_WD");
+  TString root_file_path =input_file_dir + "/output/root/";
+  TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  gDirectory -> cd(dir);
+  double mc_max = -1.;
+
+  const int N_cuts = 5;
+  TString cutflow_str[N_cuts] = {"nocut", "Nhits", "emScore", "TrackScore", "chi2_proton"};
+  for(int i = 0; i < N_cuts; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + cutflow_str[i] + "_" + dir;
+    cout << "[Draw_MC_daughter_cutflow] this_hist_name : " << this_hist_name << endl;
+    maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+    maphist[this_hist_name] -> Rebin(rebin);
+  }
+
+  // == Dividing by nocut hit
+  for(int i = 1; i < N_cuts; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + cutflow_str[i] + "_" + dir;
+    TString nocut_hist_name = "hdaughter_" + histname + "_" + cutflow_str[0] + "_" + dir;
+    if(draw_eff){
+      cout << "[Draw_MC_daughter_cutflow] Dividing " << this_hist_name << endl;
+      maphist[this_hist_name] -> Divide(maphist[nocut_hist_name]);
+    }
+  }
+  TString nocut_hist_name = "hdaughter_" + histname + "_" + cutflow_str[0] + "_" + dir;
+  if(draw_eff) maphist[nocut_hist_name] -> Divide(maphist[nocut_hist_name]);
+
+  mc_max = maphist["hdaughter_" + histname + "_" + cutflow_str[1] + "_" + dir] -> GetMaximum();
+  TString nameofhistogram = histname + "Draw_MC_daughter_cutflow" + beam_P;
+  TString canvas = nameofhistogram;
+  TString pad1 = nameofhistogram;
+  TString pad2 = nameofhistogram;
+  TString hstack = nameofhistogram;
+  TString legend = nameofhistogram;
+  TString line = nameofhistogram;
+  canvas.Insert(0, "c_");
+  pad1.Insert(0, "pad1_");
+  pad2.Insert(0, "pad2_");
+  hstack.Insert(0, "hs_");
+  legend.Insert(0, "legend_");
+  line.Insert(0, "l_");
+
+  mapcanvas[canvas] = new TCanvas(canvas,"",800,800);
+  canvas_margin(mapcanvas[canvas]);
+  gStyle -> SetOptStat(1111);
+
+  TH1D *template_h = new TH1D("", "", 1, xmin, xmax);
+  gStyle->SetOptTitle(0);
+  gStyle->SetLineWidth(2);
+  template_h -> SetStats(0);
+  template_h -> GetXaxis() -> SetTitle(TitleX);
+  template_h -> GetXaxis() -> SetTitleSize(0.05);
+  template_h -> GetXaxis() -> SetLabelSize(0.035);
+  if(draw_eff) template_h -> GetYaxis() -> SetTitle("Eff.");
+  else template_h -> GetYaxis() -> SetTitle("Events");
+  template_h -> GetYaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetRangeUser(0., mc_max * 1.5);
+  template_h -> Draw();
+
+  maplegend[legend] = new TLegend(0.20, 0.70, 0.90, 0.90);
+  maplegend[legend] -> SetFillColor(kWhite);
+  maplegend[legend] -> SetLineColor(kWhite);
+  maplegend[legend] -> SetBorderSize(1);
+  maplegend[legend] -> SetFillStyle(1001);
+  maplegend[legend] -> SetShadowColor(0);
+  maplegend[legend] -> SetEntrySeparation(0.3);
+  maplegend[legend] -> SetNColumns(3);
+
+  Int_t colour_array[] = {632, 800, 867, 416, 901, 432, 400, 920};
+  for(int i = 0; i < N_cuts; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + cutflow_str[i] + "_" + dir;
+    TString this_legend_str = cutflow_str[i];
     maphist[this_hist_name] -> SetLineColor(colour_array[i]);
-    maphist[this_hist_name] -> SetLineStyle(i + 1);
+    //maphist[this_hist_name] -> SetLineStyle(i + 1);
     maphist[this_hist_name] -> SetLineWidth(4);
     maphist[this_hist_name] -> Draw("histsame");
     maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "l");
@@ -496,103 +609,310 @@ void Draw_MC_daughter_shape_comparison(TString filename, TString histname, TStri
   latex_data_POT.DrawLatex(0.61, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
   TString pdfname;
   TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/MC_daughter_comparison_" + histname + "_" + beam_P + "GeV.pdf";
+  if(draw_eff) pdfname = WORKING_DIR + "/output/plots/PionXsec/Daughters/MC_daughter_Cutflow_" + histname + "_" + beam_P + "GeV_eff.pdf";
+  else pdfname = WORKING_DIR + "/output/plots/PionXsec/Daughters/MC_daughter_Cutflow_" + histname + "_" + beam_P + "GeV_hist.pdf";
   mapcanvas[canvas] -> SaveAs(pdfname);
 
   f_mc -> Close();
+}
+
+void Draw_MC_daughter_purity(TString filename, TString dir, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
+
+  TString input_file_dir = getenv("LArProf_WD");
+  TString root_file_path =input_file_dir + "/output/root/";
+  TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  gDirectory -> cd(dir);
+  double mc_max = -1.;
+
+  const int N_particles = 5;
+  TString particle_str[N_particles] = {"all", "pion", "proton", "muon", "other"};
+  for(int i = 0; i < N_particles; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + particle_str[i] + "_" + dir;
+    cout << "[Draw_MC_daughter_cutflow] this_hist_name : " << this_hist_name << endl;
+    maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+    maphist[this_hist_name] -> Rebin(rebin);
+  }
+
+  for(int i = 1; i < N_particles; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + particle_str[i] + "_" + dir;
+    TString nocut_hist_name = "hdaughter_" + histname + "_" + particle_str[0] + "_" + dir;
+    cout << "[Draw_MC_daughter_cutflow] Dividing " << this_hist_name << endl;
+    maphist[this_hist_name] -> Divide(maphist[nocut_hist_name]);
+  }
+  TString nocut_hist_name = "hdaughter_" + histname + "_" + particle_str[0] + "_" + dir;
+  maphist[nocut_hist_name] -> Divide(maphist[nocut_hist_name]);
+
+  TString nameofhistogram = histname + "Draw_MC_daughter_cutflow" + beam_P;
+  TString canvas = nameofhistogram;
+  TString pad1 = nameofhistogram;
+  TString pad2 = nameofhistogram;
+  TString hstack = nameofhistogram;
+  TString legend = nameofhistogram;
+  TString line = nameofhistogram;
+  canvas.Insert(0, "c_");
+  pad1.Insert(0, "pad1_");
+  pad2.Insert(0, "pad2_");
+  hstack.Insert(0, "hs_");
+  legend.Insert(0, "legend_");
+  line.Insert(0, "l_");
+
+  mapcanvas[canvas] = new TCanvas(canvas,"",800,800);
+  canvas_margin(mapcanvas[canvas]);
+  gStyle -> SetOptStat(1111);
+
+  TH1D *template_h = new TH1D("", "", 1, xmin, xmax);
+  gStyle->SetOptTitle(0);
+  gStyle->SetLineWidth(2);
+  template_h -> SetStats(0);
+  template_h -> GetXaxis() -> SetTitle(TitleX);
+  template_h -> GetXaxis() -> SetTitleSize(0.05);
+  template_h -> GetXaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetTitle("Fraction");
+  template_h -> GetYaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetRangeUser(0., 1.5);
+  template_h -> Draw();
+
+  maplegend[legend] = new TLegend(0.20, 0.70, 0.90, 0.90);
+  maplegend[legend] -> SetFillColor(kWhite);
+  maplegend[legend] -> SetLineColor(kWhite);
+  maplegend[legend] -> SetBorderSize(1);
+  maplegend[legend] -> SetFillStyle(1001);
+  maplegend[legend] -> SetShadowColor(0);
+  maplegend[legend] -> SetEntrySeparation(0.3);
+  maplegend[legend] -> SetNColumns(3);
+
+  Int_t colour_array[] = {632, 800, 867, 416, 901, 432, 400, 920};
+  for(int i = 0; i < N_particles; i++){
+    TString this_hist_name = "hdaughter_" + histname + "_" + particle_str[i] + "_" + dir;
+    TString this_legend_str = particle_str[i];
+    maphist[this_hist_name] -> SetLineColor(colour_array[i]);
+    //maphist[this_hist_name] -> SetLineStyle(i + 1);                                                                                                                                                    
+    maphist[this_hist_name] -> SetLineWidth(4);
+    maphist[this_hist_name] -> Draw("histsame");
+    maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "l");
+  }
+  maphist[nocut_hist_name] -> Draw("histsame");
+
+  maplegend[legend] -> Draw("same");
+
+  gPad->RedrawAxis();
+
+  mapcanvas[canvas] -> cd();
+  TLatex latex_ArgoNeuT, latex_data_POT;
+  latex_ArgoNeuT.SetNDC();
+  latex_data_POT.SetNDC();
+  latex_ArgoNeuT.SetTextSize(0.035);
+  latex_data_POT.SetTextSize(0.035);
+  latex_ArgoNeuT.DrawLatex(0.15, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.61, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  TString pdfname;
+  TString WORKING_DIR = getenv("LArProf_WD");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Daughters/MC_daughter_Purity_" + histname + "_" + beam_P + "GeV_overlap.pdf";
+  mapcanvas[canvas] -> SaveAs(pdfname);
+
+  f_mc -> Close();
+}
+
+void Stack_MC_daughter(TString filename, TString dir, TString histname, TString TitleX, TString beam_P, double xmin, double xmax, double rebin){
+
+  TString input_file_dir = getenv("LArProf_WD");
+  TString root_file_path =input_file_dir + "/output/root/";
+  TFile *f_mc = new TFile(root_file_path + "mc" + filename);
+  gDirectory -> cd(dir);
+  double mc_max = -1.;
+  const int N_PDGs = 4;
+  TString PDGs_str[N_PDGs] = {"proton", "pion", "muon", "other"};
+  for(int i = 0; i < N_PDGs; i++){
+    TString this_hist_name = "hdaughter_" + PDGs_str[i] + "_" + histname;
+    cout << "[Draw_MC_daughter_shape_comparison] " << this_hist_name << endl;
+    if((TH1D*)gDirectory -> Get(this_hist_name)){
+      maphist[this_hist_name] = (TH1D*)gDirectory -> Get(this_hist_name) -> Clone();
+      maphist[this_hist_name] -> Rebin(rebin);
+    }
+    else maphist[this_hist_name] = nullptr;
+  }
+
+  TString nameofhistogram = histname + "Stack_MC_daughter" + beam_P + dir;
+  TString canvas = nameofhistogram;
+  TString pad1 = nameofhistogram;
+  TString pad2 = nameofhistogram;
+  TString hstack = nameofhistogram;
+  TString legend = nameofhistogram;
+  TString line = nameofhistogram;
+  canvas.Insert(0, "c_");
+  pad1.Insert(0, "pad1_");
+  pad2.Insert(0, "pad2_");
+  hstack.Insert(0, "hs_");
+  legend.Insert(0, "legend_");
+  line.Insert(0, "l_");
+
+  mapcanvas[canvas] = new TCanvas(canvas,"",800,800);
+  canvas_margin(mapcanvas[canvas]);
+  gStyle -> SetOptStat(1111);
+
+  TH1D *template_h = new TH1D("", "", 1, xmin, xmax);
+  gStyle->SetOptTitle(0);
+  gStyle->SetLineWidth(2);
+  template_h -> SetStats(0);
+  template_h -> GetXaxis() -> SetTitle(TitleX);
+  template_h -> GetXaxis() -> SetTitleSize(0.05);
+  template_h -> GetXaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetTitle("Events");
+  template_h -> GetYaxis() -> SetLabelSize(0.035);
+  template_h -> Draw();
+
+  maplegend[legend] = new TLegend(0.20, 0.70, 0.90, 0.90);
+  maplegend[legend] -> SetFillColor(kWhite);
+  maplegend[legend] -> SetLineColor(kWhite);
+  maplegend[legend] -> SetBorderSize(1);
+  maplegend[legend] -> SetFillStyle(1001);
+  maplegend[legend] -> SetShadowColor(0);
+  maplegend[legend] -> SetEntrySeparation(0.3);
+  maplegend[legend] -> SetNColumns(3);
+
+  maphstack[hstack] = new THStack(hstack, "Stacked_" + nameofhistogram);
+
+  Int_t colour_array[] = {632, 800, 867, 416, 901, 432, 400, 920};
+  TH1D *mc_sum = (TH1D*)maphist["hdaughter_" + PDGs_str[1] + "_" + histname] -> Clone();
+  for(int i = 0; i < N_PDGs; i++){
+    TString this_hist_name = "hdaughter_" + PDGs_str[i] + "_" + histname;
+    TString this_legend_str = PDGs_str[i];
+    if(maphist[this_hist_name] != nullptr){
+      maphist[this_hist_name] -> SetLineColor(colour_array[i]);
+      maphist[this_hist_name] -> SetFillColor(colour_array[i]);
+      maphstack[hstack] -> Add(maphist[this_hist_name]);
+      maplegend[legend]->AddEntry(maphist[this_hist_name], this_legend_str, "l");
+      if(i != 1) mc_sum -> Add(maphist[this_hist_name]);
+    }
+  }
+  mc_max = mc_sum -> GetMaximum();
+  template_h -> GetYaxis() -> SetRangeUser(0., mc_max * 1.5);
+  template_h -> Draw();
+
+  maphstack[hstack] -> Draw("histsame");
+  maplegend[legend] -> Draw("same");
+
+  gPad->RedrawAxis();
+
+  mapcanvas[canvas] -> cd();
+  TLatex latex_ArgoNeuT, latex_data_POT;
+  latex_ArgoNeuT.SetNDC();
+  latex_data_POT.SetNDC();
+  latex_ArgoNeuT.SetTextSize(0.035);
+  latex_data_POT.SetTextSize(0.035);
+  latex_ArgoNeuT.DrawLatex(0.15, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.61, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  TString pdfname;
+  TString WORKING_DIR = getenv("LArProf_WD");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Daughters/MC_daughter_stack_" + histname + "_" + beam_P + "GeV.pdf";
+  mapcanvas[canvas] -> SaveAs(pdfname);
+
+  f_mc -> Close();
+}
+
+void Run_Draw_MC_vs_Data(TString file_prefix, TString file_suffix, TString P_str, TString dir){
+  if(P_str == "0.5") Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "BeamP_" + dir, "P_{Beam Inst.} (MeV/c)", P_str, 0., 1500., 20.);
+  if(P_str == "1.0") Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "BeamP_" + dir, "P_{Beam Inst.} (MeV/c)", P_str, 0., 2000., 20.);
+  if(P_str == "2.0") Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "BeamP_" + dir, "P_{Beam Inst.} (MeV/c)", P_str, 1000., 3000., 20.);
+
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "PandoraSlice_" + dir, "Pass PandoraSlice", P_str, 0., 2., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "CaloSize_" + dir, "Pass CaloSize", P_str, 0., 2., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "beam_dx_" + dir, "dx_{Beam}^{Calo Start} / #sigma_{x}", P_str, -10., 10., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "beam_dy_" + dir, "dy_{Beam}^{Calo Start} / #sigma_{y}", P_str, -10., 10., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "beam_dz_" + dir, "dz_{Beam}^{Calo Start} / #sigma_{z}", P_str, -10., 10., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "beam_dxy_" + dir, "dxy_{Beam}^{Calo Start} / #sigma_{xy}", P_str, 0., 10., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "beam_costh_" + dir, "cos#theta_{Beam Track}", P_str, -1., 1., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "daughter_michel_score_" + dir, "Daughter Michel Score", P_str, 0., 1., 1.);
+  Draw_MC_vs_Data("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "chi2_proton_" + dir, "#chi^{2}_{proton}", P_str, 0., 100., 100.);
+}
+
+void Run_Draw_MC_daughter_shape_comparison(TString file_prefix, TString file_suffix, TString P_str, TString dir){
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "trackScore_" + dir, "Track Score", P_str, 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "emScore_" + dir, "e/#gamma Score", P_str, 0., 1., 5.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "chi2_proton_" + dir, "#chi^{2}_{proton}", P_str, 0., 100., 100.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "PFP_nHits_" + dir, "N_{Hits}", P_str, 0., 1000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "cos_theta_broken_track_" + dir, "cos#theta(beam, daughter)", P_str, -1., 1., 1.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "cos_theta_not_broken_track_" + dir, "cos#theta(beam, daughter)", P_str, -1., 1., 1.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "dist_beam_end_" + dir, "Distance(beam end, daughter start) (cm)", P_str, 0., 200., 5.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_anglecut_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_distcut_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_anglecut_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
+  Draw_MC_daughter_shape_comparison("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_distcut_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
+}
+
+void Run_Draw_MC_daughter_cutflow(TString file_prefix, TString file_suffix, TString P_str, TString dir){
+  Draw_MC_daughter_cutflow("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "pion_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1200., 50., false);
+  Draw_MC_daughter_cutflow("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "proton_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1400., 50., false);
+
+  Draw_MC_daughter_cutflow("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "pion_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1200., 50., true);
+  Draw_MC_daughter_cutflow("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "proton_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1400., 50., true);
+}
+
+void Run_Draw_MC_daughter_purity(TString file_prefix, TString file_suffix, TString P_str, TString dir){
+  Draw_MC_daughter_purity("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "pion_purity_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1200., 50.);
+  Draw_MC_daughter_purity("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "proton_purity_TrueP", "P_{True}^{Start} (MeV)", P_str, 0., 1400., 50.);
+}
+
+void Run_Stack_MC_daughter(TString file_prefix, TString file_suffix, TString P_str, TString dir){
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_anglecut_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_anglecut_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQE_distcut_" + dir, "E_{QE, #pi^{#pm}} (MeV)", P_str, -2000., 2000., 10.);
+  Stack_MC_daughter("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, "EQEmE_distcut_" + dir, "E_{QE, #pi^{#pm}} - E_{Beam,true} (MeV)", P_str, -2000., 2000., 10.);
 }
 
 void Draw_PionXsec_plots(){
 
   setTDRStyle();
   TString file_suffix = "_noBeamXY.root";
+  file_suffix = "_Preweight.root";
+
   // ==== Data vs MC
-  // == After beam cuts
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "2.0", 1000., 3000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "2.0", 1000., 3000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "2.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "CaloSize", "Pass CaloSize", "2.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "2.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "2.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "2.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "2.0", 0., 600., 10.);
+  /*
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "Preweight_piOnly");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "precut_noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "precut_Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "2.0", "precut_Preweight_piOnly");
 
- /*
-  Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "2.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "BeamKE", "KE_{Beam Inst.} (MeV)", "2.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "Beam_alt_length", "Track Length (cm)", "2.0", 0., 600., 10.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV.root", "daughter_michel_score", "Michel Score", "2.0", 0., 1., 1.);
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "Preweight_piOnly");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "precut_noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "precut_Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "1.0", "precut_Preweight_piOnly");
+
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "Preweight_piOnly");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "precut_noweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "precut_Preweight");
+  Run_Draw_MC_vs_Data("PionXsec", file_suffix, "0.5", "precut_Preweight_piOnly");
   */
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "CaloSize", "Pass CaloSize", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "1.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "1.0", 0., 600., 10.);
 
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamP", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 1000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamKE", "KE_{Beam Inst.} (MeV)", "0.5", 0., 1000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "PandoraSlice", "Pass PandoraSlice", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "CaloSize", "Pass CaloSize", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dx", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dy", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dz", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dxy", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_costh", "cos#theta_{Beam Track}", "0.5", -1., 1., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "daughter_michel_score", "Daughter Michel Score", "0.5", 0., 1., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "Beam_alt_length", "Track Length (cm)", "0.5", 0., 600., 10.);
+  file_suffix = "_test.root";
+  // ==== Stacked MC
+  Run_Stack_MC_daughter("PionXsec", file_suffix, "1.0", "noweight");
+  Run_Stack_MC_daughter("PionXsec", file_suffix, "1.0", "Preweight_piOnly");
 
-  //Draw_MC_vs_Data("_PionXsec_0.3GeV.root", "BeamP", "P_{Beam Inst.} (MeV/c)", "0.3", 0., 1000., 20.);
+  // ==== MC daughter shape comparison
+  //Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "2.0", "noweight");
+  //Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "2.0", "Preweight_piOnly");
+  Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "1.0", "noweight");
+  Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "1.0", "Preweight_piOnly");
+  //Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "0.5", "noweight");
+  //Run_Draw_MC_daughter_shape_comparison("PionXsec", file_suffix, "0.5", "Preweight_piOnly");
 
-  // == Before beam cuts
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "2.0", 1000., 3000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "2.0", 1000., 3000., 20.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "2.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "2.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "2.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "2.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "2.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "2.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_2.0GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
-
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "1.0", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "1.0", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "1.0", -10., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "1.0", 0., 10., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "1.0", -1., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "1.0", 0., 1., 1.);
-  Draw_MC_vs_Data("_PionXsec_1.0GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
-
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamP_precut", "P_{Beam Inst.} (MeV/c)", "0.5", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "BeamKE_precut", "KE_{Beam Inst.} (MeV)", "0.5", 0., 2000., 20.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "PandoraSlice_precut", "Pass PandoraSlice", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "CaloSize_precut", "Pass CaloSize", "0.5", 0., 2., 1.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dx_precut", "dx_{Beam}^{Calo Start} / #sigma_{x}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dy_precut", "dy_{Beam}^{Calo Start} / #sigma_{y}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dz_precut", "dz_{Beam}^{Calo Start} / #sigma_{z}", "0.5", -10., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_dxy_precut", "dxy_{Beam}^{Calo Start} / #sigma_{xy}", "0.5", 0., 10., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "beam_costh_precut", "cos#theta_{Beam Track}", "0.5", -1., 1., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "daughter_michel_score_precut", "Daughter Michel Score", "0.5", 0., 1., 10.);
-  Draw_MC_vs_Data("_PionXsec_0.5GeV" + file_suffix, "chi2_proton_precut", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
+  // ==== Daughter Selection
+  Run_Draw_MC_daughter_purity("PionXsec", file_suffix, "1.0", "noweight");
+  Run_Draw_MC_daughter_cutflow("PionXsec", file_suffix, "1.0", "Preweight_piOnly");
 
   // ==== Draw 2D plots
+  /*
   Draw_2D_MC_and_Data("_PionXsec_1.0GeV" + file_suffix, "beam_inst_XY_precut", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
   Draw_2D_MC_and_Data("_PionXsec_1.0GeV" + file_suffix, "beam_inst_XY", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "1.0", -50, 10, 5., 400., 440., 5.);
 
@@ -600,21 +920,22 @@ void Draw_PionXsec_plots(){
   Draw_2D_MC_and_Data("_PionXsec_0.5GeV" + file_suffix, "beam_inst_XY", "X_{Beam Inst} (cm)", "Y_{Beam Inst} (cm)", "0.5", -50, 10, 20., 400., 440., 20.);
 
   // ==== MC shape comparison
-  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
-  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5.);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "2.0", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "KEffTruth_precut", "KE_{True}^{FF}  (MeV)", "2.0", 0., 2500., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "PffTruth_precut", "P_{True}^{FF}  (MeV/c)", "2.0", 0., 2500., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "BeamP_true", "P_{True}^{Start} (MeV/c)", "2.0", 0., 2500., 10., 0.2);
 
-  // ==== MC daughter shape comparison
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "trackScore", "Track Score", "2.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "emScore", "e/#gamma Score", "2.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_2.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "2.0", 0., 100., 100.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "trackScore", "Track Score", "1.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "emScore", "e/#gamma Score", "1.0", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "1.0", 0., 100., 100.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "trackScore", "Track Score", "0.5", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "emScore", "e/#gamma Score", "0.5", 0., 1., 5.);
-  Draw_MC_daughter_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "chi2_proton", "#chi^{2}_{proton}", "0.5", 0., 100., 100.);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "1.0", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "KEffTruth_precut", "KE_{True}^{FF}  (MeV)", "1.0", 0., 1500., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "PffTruth_precut", "KE (P) _{True}^{FF}  (MeV/c)", "1.0", 0., 1500., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_1.0GeV" + file_suffix, "BeamP_true", "P_{True}^{Start} (MeV/c)", "1.0", 0., 1500., 10., 0.2);
+
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamKE_loss_true_mass", "KE_{loss}^{True}  (MeV)", "0.5", -100., 100., 5., 0.4);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "KEffTruth_precut", "KE_{True}^{FF}  (MeV)", "0.5", 0., 1000., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "PffTruth_precut", "P_{True}^{FF}  (MeV/c)", "0.5", 0., 1000., 10., 0.2);
+  Draw_MC_shape_comparison("_PionXsec_0.5GeV" + file_suffix, "BeamP_true", "P_{True}^{Start} (MeV/c)", "0.5", 0., 1000., 10., 0.2);
+  */
 }
