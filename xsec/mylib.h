@@ -32,6 +32,22 @@ map<TString, std::vector<double> > map_syst_table;
 double mass_muon = 105.658; // [MeV]
 double mass_pion = 139.57; // [MeV]
 double mass_proton = 938.272; // [MeV]
+
+const double K = 0.307075; // [MeV cm2 / mol]                                                                                                                                                                     
+const double I = 188.0e-6; // [MeV], mean excitation energy                                                                                                                                                       
+const double Me = 0.511; // [Mev], mass of electron                                                                                                                                                               
+// == Parameters for the density correction                                                                                                                                                                       
+const double density_C = 5.2146;
+const double density_y0 = 0.2;
+const double density_y1 = 3.0;
+const double density_a = 0.19559;
+const double density_k = 3.0;
+
+const double LAr_density = 1.39; // [g/cm3]
+const double N_A = 6.02; // [10^23 / mol]
+const double M_Ar = 39.948; // [g / mol]
+const double xsec_unit = M_Ar / (LAr_density * N_A); // [10^4 mb cm]
+
 const int N_pi_type = 10;
 TString pi_type_str[N_pi_type] = {"Fake Data",
 				  "#pi^{+}_{Inel.}",
@@ -54,6 +70,20 @@ TString p_type_str[N_p_type] = {"Fake Data",
 				"misID:e/#gamma",
 				"misID:other"};
 
+// == Uniform 100 MeV 
+//const int N_KE_bins = 15;
+//double KE_binning[N_KE_bins] = {0., 100., 200., 300., 400., 500., 600., 700., 800., 900., 1000., 1100., 1200., 1300., 1500.};
+
+// == Uniiform 50 MeV
+const int N_KE_bins = 24;
+double KE_binning[N_KE_bins] = {0., 50., 100., 150., 200., 250., 300., 350., 400., 450., 500., 550., 600., 650., 700., 750., 800., 850., 900., 950., 1000.,
+				1050., 1100., 1500.};
+
+//const int N_KE_bins = 15;
+//double KE_binning[N_KE_bins] = {0., 400., 500., 600., 650., 700., 750., 800., 850., 900., 950., 1000., 1100., 1200., 1300.}; 
+
+//const int N_KE_bins = 17;
+//double KE_binning[N_KE_bins] = {0., 100., 200., 300., 400., 500., 600., 650., 700., 750., 800., 850., 900., 950., 1000., 1200., 1300.};
 
 const int N_MC = 6;
 TString MC_category[N_MC] = {"NC", "NumuCC", "External_NC", "External_NueCC", "External_NumuCC", "NueCC"};
@@ -74,7 +104,7 @@ TH1D * GetHist(TString hname){
 }
 
 void Rebin_with_overflow(TString histname, int N_bin, double binx[]){
-  if(debug) cout << "[Rebin_with_overflow]" << endl;
+  if(debug) cout << "[Rebin_with_overflow] " << histname << endl;
   maphist[histname + "rebin"] = (TH1D*)maphist[histname] -> Rebin(N_bin - 1, histname + "rebin", binx);
   double last_bin = 0.;
   last_bin =  maphist[histname + "rebin"] -> GetBinContent(N_bin - 1) + maphist[histname + "rebin"] -> GetBinContent(N_bin);
@@ -400,6 +430,47 @@ void AddPhantomZero(double a, TString align, int digit_int, int digit_frac){
     for(int i=0; i<target_total_digit-(number_maxdigit+1)-digit_frac; i++) cout << "\\phantom{0}";
   }
 
+}
+
+// === dE/dx
+double Density_Correction(double beta, double gamma){
+  // == Estimate the density correction
+  double density_y = TMath::Log10(beta * gamma);
+  double ln10 = TMath::Log(10);
+  double this_delta = 0.;
+  if(density_y > density_y1){
+    this_delta = 2.0 * ln10 * density_y - density_C;
+  }
+  else if (density_y < density_y0){
+    this_delta = 0.;
+  }
+  else{
+    this_delta = 2.0 * ln10 * density_y - density_C + density_a * pow(density_y1 - density_y, density_k);
+  }
+
+  return this_delta;
+}
+
+double Get_Wmax(double KE, double mass){
+  double gamma = (KE/mass)+1.0;
+  double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
+  double Wmax = (2.0 * Me * pow(beta * gamma, 2)) / (1.0 + 2.0 * Me * (gamma / mass) + pow((Me / mass),2));
+
+  return Wmax;
+}
+
+double dEdx_Bethe_Bloch(double KE, double mass){
+  double gamma = (KE/mass)+1.0;
+  double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
+  double Wmax = (2.0 * Me * pow(beta * gamma, 2)) / (1.0 + 2.0 * Me * (gamma / mass) + pow((Me / mass),2));
+  double delta = Density_Correction(beta, gamma);
+
+  // == dE/dx with the density correction
+  double f = LAr_density * K * (18.0 / M_Ar) * pow(1. / beta, 2);
+  double a0 = 0.5 * TMath::Log(2.0 * Me * pow(beta * gamma, 2) * Wmax / (I * I));
+  double this_dEdx = f * ( a0 - pow(beta, 2) - delta / 2.0); // [MeV/cm]
+
+  return this_dEdx;
 }
 
 #endif

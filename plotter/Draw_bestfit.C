@@ -1,6 +1,6 @@
 void Draw_fits_and_BetheBloch(TString filename, TString event, double r_min, double r_max, double max_dEdx){
   TString input_file_dir = getenv("LArProf_WD");
-  TString root_file_path =input_file_dir + "/output/";
+  TString root_file_path =input_file_dir + "/output/root/";
 
   TFile *f_profile = new TFile(root_file_path + "hists.root");
   TGraph *this_profile = (TGraph*)gDirectory->Get("pion_range_vs_dEdx");
@@ -14,7 +14,7 @@ void Draw_fits_and_BetheBloch(TString filename, TString event, double r_min, dou
   TCanvas *c = new TCanvas("", "", 1000, 600);
   gStyle->SetOptStat(0);
   TH1D* template_h = new TH1D("", "", 1., r_min, r_max);
-  template_h ->GetXaxis() -> SetTitle("Range [cm]");
+  template_h ->GetXaxis() -> SetTitle("Residual Range [cm]");
   template_h ->GetYaxis() -> SetTitle("dE/dx [MeV/cm]");
   template_h -> GetYaxis() -> SetRangeUser(0., max_dEdx);
   template_h -> Draw();
@@ -40,10 +40,10 @@ void Draw_fits_and_BetheBloch(TString filename, TString event, double r_min, dou
 
 void Draw_bestfit(){
   
-  Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run46728044_Evt14_PID211", 0., 200., 10.);
-  Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run46700441_Evt215_PID211", 0., 200., 10.);
-  Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run22612262_Evt443_PID211", 0., 200., 10.);
-  Draw_fits_and_BetheBloch("effval_0p3.root", "Run46732160_Evt191_PID211", 0., 30., 20.);
+  //Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run46728044_Evt14_PID211", 0., 200., 10.);
+  //Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run46700441_Evt215_PID211", 0., 200., 10.);
+  //Draw_fits_and_BetheBloch("effval_0p5_nofit.root", "Run22612262_Evt443_PID211", 0., 200., 10.);
+  //Draw_fits_and_BetheBloch("effval_0p3.root", "Run46732160_Evt191_PID211", 0., 30., 20.);
   Draw_fits_and_BetheBloch("effval_0p5_michell0p5_daughter_fit.root", "Run46726942_Evt123_Nhit20", 0., 50., 10.);
 
 }

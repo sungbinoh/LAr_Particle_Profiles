@@ -23,6 +23,29 @@ void ProfileMaker::Execute(){
   a = KE_to_Momentum(400., mass_pion);
   a = KE_to_Momentum(1000., mass_pion);
 
+  // == KE to range
+  cout << "[KE_to_ResLength_BB] proton KE 100 MeV (P " << KE_to_Momentum(100, 938.272) << " MeV) : " << KE_to_ResLength_BB(100., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 150 MeV (P " << KE_to_Momentum(150, 938.272) << " MeV) : " << KE_to_ResLength_BB(150., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 200 MeV (P " << KE_to_Momentum(200, 938.272) << " MeV) : " << KE_to_ResLength_BB(200., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 250 MeV (P " << KE_to_Momentum(250, 938.272) << " MeV) : " << KE_to_ResLength_BB(250., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 300 MeV (P " << KE_to_Momentum(300, 938.272) << " MeV) : " << KE_to_ResLength_BB(300., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 500 MeV (P " << KE_to_Momentum(500, 938.272) << " MeV) : " << KE_to_ResLength_BB(500., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 700 MeV (P " << KE_to_Momentum(700, 938.272) << " MeV) : " << KE_to_ResLength_BB(700., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 1000 MeV (P " << KE_to_Momentum(1000, 938.272) << " MeV) : " << KE_to_ResLength_BB(1000., 938.272) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] proton KE 1500 MeV (P " << KE_to_Momentum(1500, 938.272) << " MeV) : " << KE_to_ResLength_BB(1500., 938.272) << " cm" << endl;
+
+  cout << "[KE_to_ResLength_BB] pion KE 100 MeV (P " << KE_to_Momentum(100, mass_pion) << " MeV) : " << KE_to_ResLength_BB(100., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 150 MeV (P " << KE_to_Momentum(150, mass_pion) << " MeV) : " << KE_to_ResLength_BB(150., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 200 MeV (P " << KE_to_Momentum(200, mass_pion) << " MeV) : " << KE_to_ResLength_BB(200., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 250 MeV (P " << KE_to_Momentum(250, mass_pion) << " MeV) : " << KE_to_ResLength_BB(250., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 300 MeV (P " << KE_to_Momentum(300, mass_pion) << " MeV) : " << KE_to_ResLength_BB(300., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 500 MeV (P " << KE_to_Momentum(500, mass_pion) << " MeV) : " << KE_to_ResLength_BB(500., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 700 MeV (P " << KE_to_Momentum(700, mass_pion) << " MeV) : " << KE_to_ResLength_BB(700., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 1000 MeV (P " << KE_to_Momentum(1000, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1000., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 1500 MeV (P " << KE_to_Momentum(1500, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1500., mass_pion) << " cm" << endl;
+
+  cout << "[P_to_ResLength_BB] pion Momentum 1000 MeV/c (KE " << Momentum_to_KE(1000., mass_pion) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(1000., mass_pion), mass_pion) << " cm" << endl;
+
   // == KE to dE/dx BB
   cout << "<dE/dx> pion KE = 20 MeV (P = " << KE_to_Momentum(20, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(20, 0.65, mass_pion) << endl;
   cout << "<dE/dx> pion KE = 200 MeV (P = " << KE_to_Momentum(200, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(200, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(200, 0.65, mass_pion) << endl;
@@ -72,16 +95,19 @@ void ProfileMaker::Execute(){
   ///////////////////////////
   // == Produce profiles
   ///////////////////////////
+  //Produce_Profile_all();
   //Produce_Profile("pion", mass_pion);
   //Produce_Profile("proton", mass_proton);
-  //Produce_kappa("pion_0p65cm", mass_pion, 0.65);
-  //Produce_kappa("proton_0p65cm", mass_proton, 0.65);
+  Produce_KE_vs_dEdx("pion", mass_pion);
+  Produce_KE_vs_dEdx("proton", mass_proton);
+  Produce_kappa("pion_0p65cm", mass_pion, 0.65);
+  Produce_kappa("proton_0p65cm", mass_proton, 0.65);
  
   ///////////////////////////
   // == Produce PDFs
   ///////////////////////////
+  /*
   Produce_dEdx_PDF("dEdx_PDF_pion_947MeV_0p65cm", mass_pion, 947, 0.65, 1., 5., 2.0);
-
   Produce_dEdx_PDF("dEdx_PDF_pion_500MeV_0p65cm", mass_pion, 500, 0.65, 1., 5., 2.0);
   Produce_dEdx_PDF("dEdx_PDF_proton_500MeV_0p65cm", mass_proton, 500, 0.65, 1., 5., 1.5);
   Produce_dEdx_PDF("dEdx_PDF_pion_200MeV_0p65cm", mass_pion, 200, 0.65, 1., 5., 2.0);
@@ -100,13 +126,58 @@ void ProfileMaker::Execute(){
   Produce_dEdx_likelihood("dEdx_likelihood_proton_2p49MeVcm_0p65cm", mass_proton, 2.49, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_proton_4p40MeVcm_0p65cm", mass_proton, 4.40, 0.65, 1., 2000., 2.0);
   Produce_dEdx_likelihood("dEdx_likelihood_proton_25p2MeVcm_0p65cm", mass_proton, 25.2, 0.65, 10., 30., 2.0);
+  */
+  Produce_dEdx_likelihood("dEdx_likelihood_pion_2p15MeVcm_0p65cm", mass_proton, 2.15, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_proton_2p79MeVcm_0p65cm", mass_proton, 2.79, 0.65, 1., 2000., 2.0);
+  Produce_dEdx_likelihood("dEdx_likelihood_proton_25p2MeVcm_0p65cm", mass_proton, 25.2, 0.65, 1., 50., 2.0); 
+
+  Produce_Range_from_Momentum_Gaussian("Range_from_Momentum_mu1007MeV_sigma68p17_pion", mass_pion, 1007., 68.17);
+
+}
+
+/*
+void ProfileMaker::Produce_Profile_all(){
 
 
 
 }
+*/
+void ProfileMaker::Produce_KE_vs_dEdx(TString name, double mass){
+  
+  vector<double> KE_vec;
+  vector<double> dEdx_BB_vec;
+  double KE_min = 5;
+  double KE_max = 2000.;
+  int N_step = 10000;
+  double step = (KE_max - KE_min) / (N_step + 0.);
+  for(int i = 0; i < N_step; i++){
+    double this_KE = KE_min + step * (i + 0.);
+    double this_dEdx = dEdx.dEdx_Bethe_Bloch(this_KE, mass);
+    KE_vec.push_back(this_KE);
+    dEdx_BB_vec.push_back(this_dEdx);
+  }
+
+  TCanvas *c = new TCanvas("", "", 800, 600);
+  gStyle->SetOptStat(0);
+
+  TH1D *template_h = new TH1D("", "", 1., 0., 2000.);
+  template_h ->GetXaxis() -> SetTitle("KE [MeV]");
+  template_h ->GetYaxis() -> SetTitle("dE/dx [MeV/cm]");
+  template_h -> GetYaxis() -> SetRangeUser(0., 10.);
+  template_h -> Draw();
+
+  TGraph *dEdx_range = new TGraph(N_step, &KE_vec[0], &dEdx_BB_vec[0]);
+  dEdx_range -> SetName(name + "_range_vs_dEdx");
+  dEdx_range -> SetLineColor(kRed);
+  dEdx_range -> SetLineWidth(3);
+  dEdx_range -> Draw("same");
+
+  c -> SaveAs("./output/" + name + "_KE_vs_dEdx.pdf");
+  c -> Close();
+}
 
 void ProfileMaker::Produce_Profile(TString name, double mass){
-
+  // == Range vs dE/dx
   vector<double> KE_vec;
   vector<double> KE_to_mom_vec;
   vector<double> KE_to_range_BB_vec;
@@ -124,7 +195,7 @@ void ProfileMaker::Produce_Profile(TString name, double mass){
   
   TCanvas *c = new TCanvas("", "", 800, 600);
   gStyle->SetOptStat(0);
-  c -> SetLogx();
+  //c -> SetLogx();
   TH1D *template_h = new TH1D("", "", 1., 0.1, 1000.);
   template_h ->GetXaxis() -> SetTitle("Range [cm]");
   template_h ->GetYaxis() -> SetTitle("dE/dx [MeV/cm]");
@@ -137,7 +208,7 @@ void ProfileMaker::Produce_Profile(TString name, double mass){
   dEdx_range -> Draw("same");
 
   c -> SaveAs("./output/" + name + "_range_vs_dEdx.pdf");
-
+  c -> Close();
   dEdx_range -> Write();
 
   KE_vec.clear();
@@ -146,6 +217,47 @@ void ProfileMaker::Produce_Profile(TString name, double mass){
   KE_to_dEdx_BB_vec.clear();
 }
 
+void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mass, double mean, double sigma){
+  TF1 *this_gaus = new TF1("this_gaus", "gaus", mean * 0.5, mean * 1.5);
+  this_gaus -> SetParameter(0, 10.);
+  this_gaus -> SetParameter(1, mean);
+  this_gaus -> SetParameter(2, sigma);
+  TH1D * h_P = new TH1D("", "", 300., 0., 1500.);
+  TH1D * h_range = new TH1D("", "", 160., 0., 800.);
+  int N_trial = 100000.;
+  for(int i = 0; i < N_trial; i++){
+    if(i % 1000 == 0) cout << i << " / " << N_trial << endl;
+    double this_P = this_gaus -> GetRandom();
+    h_P -> Fill(this_P);
+    double this_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass), mass);
+    h_range -> Fill(this_range);
+    //cout << "this_P : " << this_P << ",m this_range : " << this_range << endl;
+  }
+
+  TCanvas *c = new TCanvas("", "", 800, 600);
+  gStyle->SetOptStat(0);
+
+  // == Draw h_P
+  double y_max = h_P -> GetMaximum();
+  y_max = std::max(y_max, h_range -> GetMaximum());
+  TH1D *template_h = new TH1D("", "", 1., 0., 1400.);
+  template_h ->GetXaxis() -> SetTitle("KE [MeV] || Range [cm]");
+  template_h ->GetXaxis() -> SetTitleOffset(1.3);
+  template_h ->GetYaxis() -> SetTitle("Events");
+  template_h -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
+  template_h -> Draw();
+
+  h_P -> SetLineColor(kRed);
+  h_P -> SetLineWidth(2);
+  h_P -> Draw("histsame");
+  h_range -> SetLineColor(kBlue);
+  h_range -> SetLineWidth(2);
+  h_range -> Draw("histsame");
+
+  c -> SaveAs("./output/plots/BeamStudy/" + name + ".pdf");
+  
+  c -> Close();
+}
 
 void ProfileMaker::Produce_kappa(TString name, double mass, double width){
   vector<double> KE_vec;
@@ -165,6 +277,7 @@ void ProfileMaker::Produce_kappa(TString name, double mass, double width){
   c -> SetLogy();
   TH1D *template_h = new TH1D("", "", 1., 0.1, 2000.);
   template_h ->GetXaxis() -> SetTitle("KE [MeV]");
+  template_h ->GetXaxis() -> SetTitleOffset(1.3);
   template_h ->GetYaxis() -> SetTitle("#kappa ");
   template_h -> GetYaxis() -> SetRangeUser(0.0001, 1000.);
   template_h -> Draw();
@@ -314,7 +427,7 @@ void ProfileMaker::Produce_dEdx_likelihood(TString name, double mass, double dEd
  
   KE_vec.clear();
   likelihood_vec.clear();
-
+  c -> Close();
 }
 
 double ProfileMaker::KE_to_Momentum(double KE, double mass){
@@ -322,6 +435,11 @@ double ProfileMaker::KE_to_Momentum(double KE, double mass){
   //cout << "[ProfileMaker::KE_to_Momentum] KE\t" << KE << "\tmass\t" << mass << "\tmom\t" << mom << endl;
 
   return mom;
+}
+
+double ProfileMaker::Momentum_to_KE(double P, double mass){
+  double KE = sqrt(pow(P, 2) + mass) - mass;
+  return KE;
 }
 
 double ProfileMaker::KE_to_ResLength_BB(double KE, double mass){
