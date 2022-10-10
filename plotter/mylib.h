@@ -281,8 +281,6 @@ void ScaleGraph(TGraphAsymmErrors *a, double c){
 
 }
 
-
-
 double GetMaximum(TH1D* hist){
 
   TAxis *xaxis = hist->GetXaxis();

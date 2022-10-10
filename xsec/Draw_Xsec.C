@@ -269,25 +269,20 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   TFile *f_mc = new TFile(root_file_path + "mc" + filename);
   double max_fake = -1.;
   gDirectory -> Cd(dir);
-  TString this_hist_name_int = suffix + "end_" + dir;
+
   TString this_hist_name_init = suffix + "init_" + dir;
-  if(interaction.Contains("QE")) this_hist_name_int = suffix + "QE_int_" + dir;
-  TString this_hist_name_end = suffix + "end_" + dir;
   TString this_hist_name_inc = suffix + "inc_" + dir;
+  TString this_hist_name_int = suffix + "end_" + dir;
+  TString this_hist_name_int_next_slice = suffix + "end_at_next_slice_" + dir;
   cout << "[Draw_Eslice_distribution_inc_true] Hist int : " << this_hist_name_int << endl;
-  cout << "[Draw_Eslice_distribution_inc_true] Hist inc : " << this_hist_name_inc << endl;
+
   if((TH1D*)gDirectory -> Get(this_hist_name_init + "_1")){
     maphist[this_hist_name_init] = (TH1D*)gDirectory -> Get(this_hist_name_init + "_1") -> Clone();
     maphist[this_hist_name_init] -> Add((TH1D*)gDirectory -> Get(this_hist_name_init + "_2"));
     Rebin_with_overflow(this_hist_name_init, N_KE_bins, KE_binning);
   }
   else maphist[this_hist_name_init] = nullptr;
-  if((TH1D*)gDirectory -> Get(this_hist_name_int + "_1")){
-    if(!interaction.Contains("QE")) this_hist_name_int = suffix + "int_" + dir;
-    maphist[this_hist_name_int] = (TH1D*)gDirectory -> Get(this_hist_name_end + "_1") -> Clone();
-    Rebin_with_overflow(this_hist_name_int, N_KE_bins, KE_binning);
-  }
-  else maphist[this_hist_name_int] = nullptr;
+
   if((TH1D*)gDirectory -> Get(this_hist_name_inc + "_1")){
     maphist[this_hist_name_inc] = (TH1D*)gDirectory -> Get(this_hist_name_inc + "_1") -> Clone();
     maphist[this_hist_name_inc] -> Add((TH1D*)gDirectory -> Get(this_hist_name_inc + "_2"));
@@ -295,8 +290,20 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   }
   else maphist[this_hist_name_inc] = nullptr;
 
-  if(maphist[this_hist_name_int] == nullptr || maphist[this_hist_name_inc] == nullptr) return;
+  if((TH1D*)gDirectory -> Get(this_hist_name_int + "_1")){
+    maphist[this_hist_name_int] = (TH1D*)gDirectory -> Get(this_hist_name_int + "_1") -> Clone();
+    Rebin_with_overflow(this_hist_name_int, N_KE_bins, KE_binning);
+  }
+  else maphist[this_hist_name_int] = nullptr;
 
+  if((TH1D*)gDirectory -> Get(this_hist_name_int_next_slice + "_1")){
+    maphist[this_hist_name_int_next_slice] = (TH1D*)gDirectory -> Get(this_hist_name_int_next_slice + "_1") -> Clone();
+    Rebin_with_overflow(this_hist_name_int_next_slice, N_KE_bins, KE_binning);
+  }
+  else maphist[this_hist_name_int_next_slice] = nullptr;
+  
+  if(maphist[this_hist_name_init] == nullptr || maphist[this_hist_name_inc] == nullptr || maphist[this_hist_name_int] == nullptr || maphist[this_hist_name_int_next_slice] == nullptr) return;
+  
   TCanvas *c = new TCanvas("", "", 800, 600);
   canvas_margin(c);
   gStyle -> SetOptStat(1111);
@@ -313,85 +320,17 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   template_h -> GetYaxis() -> SetTitle("Events / MeV");
   template_h -> GetYaxis() -> SetTitleSize(0.05);
   template_h -> GetYaxis() -> SetLabelSize(0.035);
+  template_h -> GetYaxis() -> SetRangeUser(0., 1000.);
   template_h -> Draw("hist");
 
   // == Draw Initial KE log ratio
-  TH1D* h_inc = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
   TH1D* h_init = (TH1D*)maphist[this_hist_name_init + "rebin"] -> Clone();
-  TH1D* h_ratio = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
-  TH1D* h_diff = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
-  h_diff -> Add(maphist[this_hist_name_int + "rebin"], -1);
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_ratio -> GetBinContent(i);
-    double this_error = h_ratio -> GetBinError(i);
-    cout <<"h_ratio before divide, " << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-  }
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_diff -> GetBinContent(i);
-    double this_error = h_diff -> GetBinError(i);
-    cout << "h_diff, " << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-  }
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_ratio_content = h_ratio -> GetBinContent(i);
-    double this_ratio_error = h_ratio -> GetBinError(i);
-    double this_diff_content = h_diff -> GetBinContent(i);
-    double this_diff_error = h_diff -> GetBinError(i);
-    double this_ratio = this_ratio_content / this_diff_content;
-    double approx_err = this_ratio * sqrt(pow(this_ratio_error/this_ratio_content, 2) + pow(this_diff_error / this_diff_content, 2));
-    cout << "Approx divided err, " << i << ", this_ratio : " << this_ratio << ", approx_err : " << approx_err << endl;
-    h_ratio -> SetBinContent(i, this_ratio);
-    h_ratio -> SetBinError(i, approx_err);
-  }
-  //h_ratio -> Divide(h_diff);
-  for(int i = 1; i < N_KE_bins - 1; i++){
-    if(h_ratio -> GetBinContent(i) > 0.){
-      double this_content = h_ratio -> GetBinContent(i);
-      double this_error = h_ratio -> GetBinError(i);
-      cout << "h_ratio after divide, " << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-      double log_content = log(this_content);
-      double log_error = log(1. + this_error / this_content );
-      double this_width =  KE_binning[i] - KE_binning[i - 1];
-      h_ratio -> SetBinContent(i, log_content / this_width);
-      h_ratio -> SetBinError(i, log_error / this_width);
-    }
-  }
+  TH1D* h_inc = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
+  TH1D* h_int = (TH1D*)maphist[this_hist_name_int + "rebin"] -> Clone();
+  TH1D* h_int_next_slice = (TH1D*)maphist[this_hist_name_int_next_slice + "rebin"] ->Clone();
 
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_ratio -> GetBinContent(i);
-    double this_error = h_ratio -> GetBinError(i);
-    cout << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-  }  
-  TH1D *h_xsec = (TH1D*) h_ratio -> Clone();
-  for(int i = 1; i < N_KE_bins; i++){
-    if(h_xsec -> GetBinContent(i) > 0.){
-      double this_content = h_xsec -> GetBinContent(i);
-      double this_err = h_xsec -> GetBinError(i);
-      double this_KE = (KE_binning[i] + KE_binning[i - 1]) / 2.0;
-      double this_dEdx = dEdx_Bethe_Bloch(this_KE, mass_pion);
-      h_xsec -> SetBinContent(i, this_content * this_dEdx);
-      h_xsec -> SetBinError(i, this_err * this_dEdx);
-    }
-  }
-  h_xsec -> Scale(10000. * xsec_unit);
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_xsec -> GetBinContent(i);
-    cout << i << ", this_content : " << this_content << endl;
-  }
-
-  double y_max = h_xsec -> GetMaximum();
-  template_h -> GetYaxis() -> SetTitle("#sigma_{Inelastic} [mb]");
-  if(interaction.Contains("QE")) template_h -> GetYaxis() -> SetTitle("#sigma_{QE} [mb]");
-  template_h -> GetYaxis() -> SetRangeUser(0., 1000.);
-  template_h -> Draw();
-
-  h_init -> Scale(800. / h_init -> GetMaximum() );
-  h_inc -> Scale(600. / h_inc -> GetMaximum() );
-  h_init -> SetLineWidth(2);
-  h_inc -> SetLineWidth(2);
-  h_init -> SetLineColor(kBlue);
-  h_inc -> SetLineColor(kOrange);
-  h_init -> Draw("histsame");
-  h_inc -> Draw("histsame");
+  TH1D * h_xsec_all = Make_cross_section_histogram(this_hist_name_inc + "rebin", this_hist_name_int + "rebin");
+  TH1D * h_xsec_next_slice = Make_cross_section_histogram(this_hist_name_init + "rebin", this_hist_name_int_next_slice + "rebin");
 
   TFile *f_xsec_template = new TFile(input_file_dir + "/xsec/exclusive_xsec.root");
   TGraph *g_xsec_template = (TGraph*) gDirectory -> Get("total_inel_KE") -> Clone();
@@ -399,10 +338,10 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   g_xsec_template -> SetLineColor(kRed);
   g_xsec_template -> SetLineWidth(2);
   g_xsec_template -> Draw("lsame");
-  h_xsec -> SetLineColor(kGreen);
-  h_xsec -> SetMarkerStyle(9);
-  h_xsec -> SetMarkerColor(kGreen);
-  h_xsec -> Draw("epsame");
+  h_xsec_all -> SetLineColor(kGreen);
+  h_xsec_all -> SetMarkerStyle(9);
+  h_xsec_all -> SetMarkerColor(kGreen);
+  h_xsec_all -> Draw("epsame");
   gPad->RedrawAxis();
 
   TLatex latex_ProtoDUNE, latex_data_POT;
@@ -414,184 +353,23 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
   TString pdfname;
   TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_inc.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_all.pdf";
   c -> SaveAs(pdfname);
 
-  // == Histogram for Ninit correction
-  TH1D *h_init_corr = (TH1D*)maphist[this_hist_name_init + "rebin"] -> Clone();
-  //h_init_corr -> Divide(maphist[this_hist_name_inc + "rebin"]);
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_numer = maphist[this_hist_name_init + "rebin"] -> GetBinContent(i + 1);
-    double this_denom = maphist[this_hist_name_inc + "rebin"] -> GetBinContent(i);
-    double this_numer_err = maphist[this_hist_name_init + "rebin"] -> GetBinError(i + 1);
-    double this_denom_err = maphist[this_hist_name_inc + "rebin"] -> GetBinError(i);
-
-    double this_ratio = 0.;
-    double approx_err = 0.;
-    if(this_denom > 0. && this_numer > 0.){
-      this_ratio = this_numer / this_denom;
-      approx_err = this_ratio * sqrt(pow(this_numer_err/this_numer, 2) + pow(this_denom_err / this_denom, 2));
-    }
-    double this_KE = (KE_binning[i] + KE_binning[i - 1]) / 2.0;
-    double this_dEdx = dEdx_Bethe_Bloch(this_KE, mass_pion);
-    double this_width =  KE_binning[i] - KE_binning[i - 1];
-    h_init_corr -> SetBinContent(i, this_ratio* this_dEdx / this_width);
-    h_init_corr -> SetBinError(i, approx_err* this_dEdx / this_width);
-    cout << "h_init_corr, " << i << ", this_numer : " << this_numer << ", this_denom : " << this_denom << ", this_ratio : " << this_ratio << ", approx_err : " << approx_err << endl;
-  }
-  h_init_corr -> Scale(10000. * xsec_unit);
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_init_corr -> GetBinContent(i);
-    double this_error = h_init_corr -> GetBinError(i);
-    cout << "h_init_corr\t" << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-  }
-
-  TH1D *h_log = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_inc = maphist[this_hist_name_inc + "rebin"]  -> GetBinContent(i);
-    double this_inc_err = maphist[this_hist_name_inc + "rebin"]  ->GetBinError(i);
-    double this_int = maphist[this_hist_name_int + "rebin"]  -> GetBinContent(i);
-    double this_int_err= maphist[this_hist_name_int + "rebin"]  ->GetBinError(i);
-    double this_init = maphist[this_hist_name_init + "rebin"]  -> GetBinContent(i + 1);
-    double this_init_err= maphist[this_hist_name_init + "rebin"]  ->GetBinError(i);
-    
-    double this_numer = this_inc;
-    double this_denom = this_inc - this_int + this_init;
-    double this_ratio = this_numer / this_denom;
-    double this_err = this_ratio * sqrt( 1. / this_numer + 1./this_denom );
-
-    if(this_ratio > 0.){
-      double log_content = log(this_ratio);
-      double log_error = fabs(log(1. + this_err / this_ratio ));
-      double this_width =  KE_binning[i] - KE_binning[i - 1];
-      double this_KE = (KE_binning[i] + KE_binning[i - 1]) / 2.0;
-      double this_dEdx = dEdx_Bethe_Bloch(this_KE, mass_pion);
-      h_log -> SetBinContent(i, log_content * this_dEdx / this_width);
-      h_log -> SetBinError(i, log_error * this_dEdx / this_width);
-    }
-    else{
-      h_log -> SetBinContent(i, 0.);
-      h_log -> SetBinError(i, 0.);
-    }
-  }
-  h_log -> Scale(10000. * xsec_unit);
-  for(int i = 1; i < N_KE_bins; i++){
-    double this_content = h_log -> GetBinContent(i);
-    double this_error = h_log -> GetBinError(i);
-    cout << "h_log\t" << i << ", this_content : " << this_content << ", this_error : " << this_error << endl;
-  }
-
-  h_log -> Add(h_init_corr);
-  template_h -> GetYaxis() -> SetTitle("#sigma_{Inelastic} [mb]");
-  if(interaction.Contains("QE")) template_h -> GetYaxis() -> SetTitle("#sigma_{QE} [mb]");
-  template_h -> GetYaxis() -> SetRangeUser(0., 1000.);
-  template_h -> Draw();
+  // == Xsec using int next slice
+  template_h -> Draw("hist");
   g_xsec_template -> Draw("lsame");
-  h_log -> SetLineColor(kGreen);
-  h_log -> SetMarkerStyle(9);
-  h_log -> SetMarkerColor(kGreen);
-  h_log -> Draw("epsame");
+  h_xsec_next_slice -> SetLineColor(kGreen);
+  h_xsec_next_slice -> SetMarkerStyle(9);
+  h_xsec_next_slice -> SetMarkerColor(kGreen);
+  h_xsec_next_slice -> Draw("epsame");
   gPad->RedrawAxis();
-
   latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
   latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_inc_corr.pdf";
-  c -> SaveAs(pdfname);
-
-
-  // == Just ratio
-  h_ratio = (TH1D*)maphist[this_hist_name_int + "rebin"] -> Clone();
-  h_ratio -> Divide(maphist[this_hist_name_inc + "rebin"]);
-  h_xsec = (TH1D*) h_ratio -> Clone();
-  for(int i = 1; i < N_KE_bins; i++){
-    if(h_xsec -> GetBinContent(i) > 0.){
-      double this_content = h_xsec -> GetBinContent(i);
-      double this_err = h_xsec -> GetBinError(i);
-      double this_KE = (KE_binning[i] + KE_binning[i - 1]) / 2.0;
-      double this_dEdx = dEdx_Bethe_Bloch(this_KE, mass_pion);
-      h_xsec -> SetBinContent(i, this_content * this_dEdx / 50.);
-      h_xsec -> SetBinError(i, this_err * this_dEdx / 50.);
-      //cout << i << ", this_content * this_dEdx : " << this_content * this_dEdx << endl;
-    }
-  }
-  h_xsec -> Scale(10000. * xsec_unit);
-  y_max = h_xsec -> GetMaximum();
-  template_h -> GetYaxis() -> SetTitle("#sigma_{Inelastic} [mb]");
-  if(interaction.Contains("QE")) template_h -> GetYaxis() -> SetTitle("#sigma_{QE} [mb]");
-  template_h -> GetYaxis() -> SetRangeUser(0., 1000.);
-  template_h -> Draw();
-  g_xsec_template -> Draw("lsame");
-  h_xsec -> SetLineColor(kGreen);
-  h_xsec -> SetMarkerStyle(9);
-  h_xsec -> SetMarkerColor(kGreen);
-  h_xsec -> Draw("epsame");
-  gPad->RedrawAxis();
-
-  latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
-  latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_inc_ratio.pdf";
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_next_slice.pdf";
   c -> SaveAs(pdfname);
 
   c -> Close();
-}
-
-void Draw_thisEslice_inc_true(TString filename, TString dir, TString interaction, TString TitleX, TString beam_P, double xmin, double xmax, bool logy){
-
-  TString suffix = "hdaughter_KE_pion_";
-  TString input_file_dir = getenv("LArProf_WD");
-  TString root_file_path = input_file_dir + "/output/root/";
-  TFile *f_mc = new TFile(root_file_path + "mc" + filename);
-  double max_fake = -1.;
-  gDirectory -> Cd(dir);
-  TString this_hist_name_int = suffix + "end_" + dir;
-  TString this_hist_name_init = suffix + "init_" + dir;
-  if(interaction.Contains("QE")) this_hist_name_int = suffix + "QE_int_" + dir;
-  TString this_hist_name_end = suffix + "end_" + dir;
-  TString this_hist_name_inc = suffix + "inc_" + dir;
-  cout << "[Draw_Eslice_distribution_inc_true] Hist int : " << this_hist_name_int << endl;
-  cout << "[Draw_Eslice_distribution_inc_true] Hist inc : " << this_hist_name_inc << endl;
-  if((TH1D*)gDirectory -> Get(this_hist_name_init + "_1")){
-    maphist[this_hist_name_init] = (TH1D*)gDirectory -> Get(this_hist_name_init + "_1") -> Clone();
-    maphist[this_hist_name_init] -> Add((TH1D*)gDirectory -> Get(this_hist_name_init + "_2"));
-    Rebin_with_overflow(this_hist_name_init, N_KE_bins, KE_binning);
-  }
-  else maphist[this_hist_name_init] = nullptr;
-  if((TH1D*)gDirectory -> Get(this_hist_name_int + "_1")){
-    if(!interaction.Contains("QE")) this_hist_name_int = suffix + "int_" + dir;
-    maphist[this_hist_name_int] = (TH1D*)gDirectory -> Get(this_hist_name_end + "_1") -> Clone();
-    Rebin_with_overflow(this_hist_name_int, N_KE_bins, KE_binning);
-  }
-  else maphist[this_hist_name_int] = nullptr;
-  if((TH1D*)gDirectory -> Get(this_hist_name_inc + "_1")){
-    maphist[this_hist_name_inc] = (TH1D*)gDirectory -> Get(this_hist_name_inc + "_1") -> Clone();
-    maphist[this_hist_name_inc] -> Add((TH1D*)gDirectory -> Get(this_hist_name_inc + "_2"));
-    Rebin_with_overflow(this_hist_name_inc, N_KE_bins, KE_binning);
-  }
-  else maphist[this_hist_name_inc] = nullptr;
-
-  if(maphist[this_hist_name_int] == nullptr || maphist[this_hist_name_inc] == nullptr) return;
-
-  TCanvas *c = new TCanvas("", "", 800, 600);
-  canvas_margin(c);
-  gStyle -> SetOptStat(1111);
-  if(logy) c -> SetLogy();
-
-  TH1D *template_h = new TH1D("", "", 1, xmin, xmax);
-  gStyle->SetOptTitle(0);
-  gStyle->SetLineWidth(3);
-  template_h -> SetLineWidth(2);
-  template_h -> SetStats(0);
-  template_h -> GetXaxis() -> SetTitle(TitleX);
-  template_h -> GetXaxis() -> SetTitleSize(0.05);
-  template_h -> GetXaxis() -> SetLabelSize(0.035);
-  template_h -> GetYaxis() -> SetTitle("Events / MeV");
-  template_h -> GetYaxis() -> SetTitleSize(0.05);
-  template_h -> GetYaxis() -> SetLabelSize(0.035);
-  template_h -> Draw("hist");
-
-  
-
-
 }
 
 void test_Eslice_assumptions(TString graph_str, TString legend_str, TString interaction_def, TString beam_P){
@@ -777,7 +555,6 @@ void Draw_Xsec(){
   // == E slice
   //mc_PionXsec_1.0GeV_beam_study.root
   file_suffix = "_Eslice_test.root";
-  file_suffix = "_beam_study.root";
   //Run_Draw_Eslice("PionXsec", file_suffix, "QE_", "1.0", "beam_window_Preweight_piOnly");
   //Run_Draw_Eslice("PionXsec", file_suffix, "", "1.0", "beam_window_Preweight_piOnly");
   Run_Draw_Eslice("PionXsec", file_suffix, "", "1.0", "nocut_noweight");
