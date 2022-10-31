@@ -113,6 +113,31 @@ void Rebin_with_overflow(TString histname, int N_bin, double binx[]){
   maphist[histname + "rebin"] -> SetBinContent(N_bin - 1, last_bin);
 }
 
+TH1D* Make_incident_histogram(TString h_init_name, TString h_end_name){
+
+  cout << "[Make_incident_histogram] Making incident histogram using " << h_init_name << " and " << h_end_name << endl;
+  int N_bin = maphist[h_init_name] -> GetNbinsX();
+  TH1D *out = (TH1D*) maphist[h_init_name] -> Clone();
+  for(int i_bin = 1; i_bin < N_bin + 1; i_bin++){
+    double sum_N_end = 0.;
+    double sum_N_init = 0.;
+    for(int j_bin = 1; j_bin < i_bin + 1; j_bin++){
+      //cout << "[sum_N_end] (i, j) : (" << i << ", " << j << ")" << endl;
+      sum_N_end += maphist[h_end_name] -> GetBinContent(j_bin);
+    }
+    for(int j_bin = 1; j_bin < i_bin + 0; j_bin++){
+      //cout << "[sum_N_init] (i, j) : (" << i << ", " << j << ")" << endl;
+      sum_N_init += maphist[h_init_name] -> GetBinContent(j_bin);
+    }
+    double this_content = sum_N_end - sum_N_init;
+    double this_err = sqrt(this_content);
+    out -> SetBinContent(i_bin, this_content);
+    out -> SetBinError(i_bin, this_err);
+  }
+
+  return out;
+}
+
 TH1D* Make_cross_section_histogram(TString h_inc_name, TString h_int_name){
 
   cout << "[Make_cross_section_histogram] for " << h_inc_name << " and " << h_int_name << endl;
@@ -126,8 +151,8 @@ TH1D* Make_cross_section_histogram(TString h_inc_name, TString h_int_name){
     if(this_inc > 0. && this_int > 0. && this_inc != this_int){
       ratio = this_inc / (this_inc - this_int);
       double numer_err = sqrt(this_inc);
-      double denom_err = sqrt(this_inc - this_int);
-      ratio_err = ratio * fabs(1. / numer_err - 1. / denom_err);;
+      double denom_err = sqrt(this_inc + this_int);
+      ratio_err = ratio * fabs(1. / numer_err + 1. / denom_err);
     }
     double log_ratio = log(ratio);
     double log_err = log(1. + ratio_err / ratio );
@@ -138,7 +163,7 @@ TH1D* Make_cross_section_histogram(TString h_inc_name, TString h_int_name){
     double this_xsec_err = 10000. * xsec_unit * log_err * this_dEdx / this_dE;
     out -> SetBinContent(i_bin, this_xsec);
     out -> SetBinError(i_bin, this_xsec_err);
-    cout << "[Make_cross_section_histogram] " << i_bin << " xsec : " << this_xsec << " +- " << this_xsec_err << endl;
+    cout << "[Make_cross_section_histogram] " << i_bin << " xsec : " << this_xsec << " +- " << this_xsec_err << ", this_inc : " << this_inc << ", this_int : " << this_int << endl;
   }
 
   return out;

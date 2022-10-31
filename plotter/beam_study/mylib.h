@@ -45,14 +45,14 @@ TString pi_type_str[N_pi_type] = {"Fake Data",
 				  "Misid. : other"};
 const int N_p_type = 9;
 TString p_type_str[N_p_type] = {"Fake Data",
-				"PInel",
-				"PElas",
-				"misID:cosmic",
-				"misID:p",
-				"misID:pi",
-				"misID:mu",
-				"misID:e/#gamma",
-				"misID:other"};
+				"p_{Inel.}",
+				"p_{Stopped}",
+				"Misid. : cosmic",
+				"Misid. : p",
+				"Misid. : #pi^{+}",
+				"Misid. : #mu",
+				"Misid. : e/#gamma",
+				"Misid. : other"};
 
 
 const int N_MC = 6;

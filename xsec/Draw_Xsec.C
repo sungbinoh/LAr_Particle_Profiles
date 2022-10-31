@@ -261,7 +261,7 @@ void Draw_Eslice_distribution(TString filename, TString dir, TString interaction
   c -> Close();
 }
 
-void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString interaction, TString TitleX, TString beam_P, double xmin, double xmax, bool logy){
+void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString interaction, TString true_gr_name, TString TitleX, TString beam_P, double xmin, double xmax, double ymax, bool logy){
 
   TString suffix = "hdaughter_KE_pion_";
   TString input_file_dir = getenv("LArProf_WD");
@@ -272,38 +272,36 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
 
   TString this_hist_name_init = suffix + "init_" + dir;
   TString this_hist_name_inc = suffix + "inc_" + dir;
-  TString this_hist_name_int = suffix + "end_" + dir;
-  TString this_hist_name_int_next_slice = suffix + "end_at_next_slice_" + dir;
+  TString this_hist_name_int = suffix + "int_" + interaction + "_" + dir;
+  TString this_hist_name_end =  suffix + "end_" + dir;
+
   cout << "[Draw_Eslice_distribution_inc_true] Hist int : " << this_hist_name_int << endl;
 
-  if((TH1D*)gDirectory -> Get(this_hist_name_init + "_1")){
-    maphist[this_hist_name_init] = (TH1D*)gDirectory -> Get(this_hist_name_init + "_1") -> Clone();
-    maphist[this_hist_name_init] -> Add((TH1D*)gDirectory -> Get(this_hist_name_init + "_2"));
-    Rebin_with_overflow(this_hist_name_init, N_KE_bins, KE_binning);
+  if((TH1D*)gDirectory -> Get(this_hist_name_init + "_211")){
+    maphist[this_hist_name_init] = (TH1D*)gDirectory -> Get(this_hist_name_init + "_211") -> Clone();
+    //maphist[this_hist_name_init] -> Add((TH1D*)gDirectory -> Get(this_hist_name_init + "_2"));
+    Rebin_with_overflow( this_hist_name_init, N_KE_bins, KE_binning);
   }
   else maphist[this_hist_name_init] = nullptr;
-
-  if((TH1D*)gDirectory -> Get(this_hist_name_inc + "_1")){
-    maphist[this_hist_name_inc] = (TH1D*)gDirectory -> Get(this_hist_name_inc + "_1") -> Clone();
-    maphist[this_hist_name_inc] -> Add((TH1D*)gDirectory -> Get(this_hist_name_inc + "_2"));
+  if((TH1D*)gDirectory -> Get(this_hist_name_inc + "_211")){
+    maphist[this_hist_name_inc] = (TH1D*)gDirectory -> Get(this_hist_name_inc + "_211") -> Clone();
+    //maphist[this_hist_name_inc] -> Add((TH1D*)gDirectory -> Get(this_hist_name_inc + "_2"));
     Rebin_with_overflow(this_hist_name_inc, N_KE_bins, KE_binning);
   }
   else maphist[this_hist_name_inc] = nullptr;
-
-  if((TH1D*)gDirectory -> Get(this_hist_name_int + "_1")){
-    maphist[this_hist_name_int] = (TH1D*)gDirectory -> Get(this_hist_name_int + "_1") -> Clone();
+  if((TH1D*)gDirectory -> Get(this_hist_name_int + "_211")){
+    maphist[this_hist_name_int] = (TH1D*)gDirectory -> Get(this_hist_name_int + "_211") -> Clone();
+    //maphist[this_hist_name_int] -> Add((TH1D*)gDirectory -> Get(this_hist_name_int + "_2"), -1);
     Rebin_with_overflow(this_hist_name_int, N_KE_bins, KE_binning);
   }
   else maphist[this_hist_name_int] = nullptr;
-
-  if((TH1D*)gDirectory -> Get(this_hist_name_int_next_slice + "_1")){
-    maphist[this_hist_name_int_next_slice] = (TH1D*)gDirectory -> Get(this_hist_name_int_next_slice + "_1") -> Clone();
-    Rebin_with_overflow(this_hist_name_int_next_slice, N_KE_bins, KE_binning);
+  if((TH1D*)gDirectory -> Get(this_hist_name_end + "_211")){
+    maphist[this_hist_name_end] = (TH1D*)gDirectory -> Get(this_hist_name_end + "_211") -> Clone();
+    Rebin_with_overflow(this_hist_name_end, N_KE_bins, KE_binning);
   }
-  else maphist[this_hist_name_int_next_slice] = nullptr;
-  
-  if(maphist[this_hist_name_init] == nullptr || maphist[this_hist_name_inc] == nullptr || maphist[this_hist_name_int] == nullptr || maphist[this_hist_name_int_next_slice] == nullptr) return;
-  
+  else maphist[this_hist_name_end] = nullptr;
+
+  if(maphist[this_hist_name_init] == nullptr || maphist[this_hist_name_inc] == nullptr || maphist[this_hist_name_int] == nullptr || maphist[this_hist_name_end] == nullptr) return;
   TCanvas *c = new TCanvas("", "", 800, 600);
   canvas_margin(c);
   gStyle -> SetOptStat(1111);
@@ -320,21 +318,113 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   template_h -> GetYaxis() -> SetTitle("Events / MeV");
   template_h -> GetYaxis() -> SetTitleSize(0.05);
   template_h -> GetYaxis() -> SetLabelSize(0.035);
-  template_h -> GetYaxis() -> SetRangeUser(0., 1000.);
+  template_h -> GetYaxis() -> SetRangeUser(0., ymax);
   template_h -> Draw("hist");
 
-  // == Draw Initial KE log ratio
+  //if(!interaction.Contains("InElas")) maphist[this_hist_name_int + "rebin"] -> Scale(0.5); // FIXME : after runnign with if(pitype_str != "0") cuts
   TH1D* h_init = (TH1D*)maphist[this_hist_name_init + "rebin"] -> Clone();
   TH1D* h_inc = (TH1D*)maphist[this_hist_name_inc + "rebin"] -> Clone();
   TH1D* h_int = (TH1D*)maphist[this_hist_name_int + "rebin"] -> Clone();
-  TH1D* h_int_next_slice = (TH1D*)maphist[this_hist_name_int_next_slice + "rebin"] ->Clone();
 
+  // == Draw initial
+  TH1D *template_h_KE = new TH1D("", "", 1, xmin, xmax + 200.);
+  gStyle->SetOptTitle(0);
+  gStyle->SetLineWidth(3);
+  template_h_KE -> SetLineWidth(2);
+  template_h_KE -> SetStats(0);
+  template_h_KE -> GetXaxis() -> SetTitle(TitleX);
+  template_h_KE -> GetXaxis() -> SetTitleSize(0.05);
+  template_h_KE -> GetXaxis() -> SetLabelSize(0.035);
+  template_h_KE -> GetYaxis() -> SetTitle("Events / MeV");
+  template_h_KE -> GetYaxis() -> SetTitleSize(0.05);
+  template_h_KE -> GetYaxis() -> SetLabelSize(0.035);
+  template_h_KE -> GetYaxis() -> SetRangeUser(0., 1200.);
+  template_h_KE -> Draw("hist");
+  double y_max = h_init -> GetMaximum();
+  template_h_KE -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
+  template_h_KE -> Draw("hist");
+  h_init -> SetLineColor(kGreen);
+  h_init -> SetMarkerStyle(9);
+  h_init -> SetMarkerColor(kGreen);
+  h_init -> Draw("epsame");
+  TLatex latex_ProtoDUNE, latex_data_POT, latex_textbox;
+  latex_ProtoDUNE.SetNDC();
+  latex_data_POT.SetNDC();
+  latex_textbox.SetNDC();
+  latex_ProtoDUNE.SetTextSize(0.035);
+  latex_data_POT.SetTextSize(0.035);
+  latex_textbox.SetTextSize(0.035);
+  latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  latex_textbox.DrawLatex(0.30, 0.65, "Initial #pi^{+}");
+  TString pdfname;
+  TString WORKING_DIR = getenv("LArProf_WD");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Initial_" + beam_P + "GeV_true_all.pdf";
+  c -> SaveAs(pdfname);
+
+  // == Draw incident
+  y_max = h_inc -> GetMaximum();
+  template_h_KE -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
+  template_h_KE -> Draw("hist");
+  h_inc -> SetLineColor(kGreen);
+  h_inc -> SetMarkerStyle(9);
+  h_inc -> SetMarkerColor(kGreen);
+  h_inc -> Draw("epsame");
+  latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  latex_textbox.DrawLatex(0.30, 0.65, "Incident #pi^{+}");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Incident_" + beam_P + "GeV_true_all.pdf";
+  c -> SaveAs(pdfname);
+
+  // == Draw interaction
+  y_max = h_int -> GetMaximum();
+  template_h_KE -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
+  template_h_KE -> Draw("hist");
+  h_int -> SetLineColor(kGreen);
+  h_int -> SetMarkerStyle(9);
+  h_int -> SetMarkerColor(kGreen);
+  h_int -> Draw("epsame");
+  latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+  latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
+  latex_textbox.DrawLatex(0.20, 0.65, "Interaction #pi^{+} (" + interaction + ")");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Interaction_" + interaction + "_" + beam_P + "GeV_true_all.pdf";
+  c -> SaveAs(pdfname);
+
+
+  // == Draw cross section
+  template_h -> Draw();
   TH1D * h_xsec_all = Make_cross_section_histogram(this_hist_name_inc + "rebin", this_hist_name_int + "rebin");
-  TH1D * h_xsec_next_slice = Make_cross_section_histogram(this_hist_name_init + "rebin", this_hist_name_int_next_slice + "rebin");
+  TH1D * h_maden_inc = Make_incident_histogram(this_hist_name_init + "rebin", this_hist_name_end + "rebin");
 
   TFile *f_xsec_template = new TFile(input_file_dir + "/xsec/exclusive_xsec.root");
-  TGraph *g_xsec_template = (TGraph*) gDirectory -> Get("total_inel_KE") -> Clone();
-  if(interaction.Contains("QE")) g_xsec_template = (TGraph*) gDirectory -> Get("inel_KE") -> Clone();
+  TString this_gr_name = true_gr_name;
+  TGraph *g_xsec_template;
+  /*
+  if(this_gr_name == ""){
+    this_gr_name = "total_inel_KE";
+    vector<double> x_qe;
+    vector<double> y_qe;
+    int N_gr_points = (TGraph*) gDirectory -> Get(this_gr_name) -> GetN();
+    for(int i = 0; i < N_gr_points; i++){
+      double out_x, out_y;
+      double this_y = 0.;
+      (TGraph*) gDirectory -> Get(this_gr_name) -> GetPoint(i,out_x, out_y); 
+      (TGraph*) gDirectory -> Get("abs_KE") -> GetPoint(i,out_x, this_y);
+      out_y = out_y - this_y;
+      (TGraph*) gDirectory -> Get("") -> GetPoint(i,out_x, this_y);
+      out_y = out_y - this_y;
+      (TGraph*) gDirectory -> Get("") -> GetPoint(i,out_x, this_y);
+      out_y = out_y - this_y;
+      (TGraph*) gDirectory -> Get("") -> GetPoint(i,out_x, this_y);
+      out_y = out_y - this_y;
+      (TGraph*) gDirectory -> Get("") -> GetPoint(i,out_x, this_y);
+      out_y = out_y - this_y;
+
+    }
+  }
+  */
+
+  g_xsec_template = (TGraph*) gDirectory -> Get(this_gr_name) -> Clone();
   g_xsec_template -> SetLineColor(kRed);
   g_xsec_template -> SetLineWidth(2);
   g_xsec_template -> Draw("lsame");
@@ -344,29 +434,36 @@ void Draw_Eslice_distribution_inc_true(TString filename, TString dir, TString in
   h_xsec_all -> Draw("epsame");
   gPad->RedrawAxis();
 
-  TLatex latex_ProtoDUNE, latex_data_POT;
-  latex_ProtoDUNE.SetNDC();
-  latex_data_POT.SetNDC();
-  latex_ProtoDUNE.SetTextSize(0.035);
-  latex_data_POT.SetTextSize(0.035);
   latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
   latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
-  TString pdfname;
-  TString WORKING_DIR = getenv("LArProf_WD");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_all.pdf";
+  latex_textbox.DrawLatex(0.60, 0.75, "#sigma_{#pi^{+}} (" + interaction + ")");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + "_" + beam_P + "GeV_true_all.pdf";
   c -> SaveAs(pdfname);
 
-  // == Xsec using int next slice
-  template_h -> Draw("hist");
-  g_xsec_template -> Draw("lsame");
-  h_xsec_next_slice -> SetLineColor(kGreen);
-  h_xsec_next_slice -> SetMarkerStyle(9);
-  h_xsec_next_slice -> SetMarkerColor(kGreen);
-  h_xsec_next_slice -> Draw("epsame");
-  gPad->RedrawAxis();
+
+  // == Compare inc histograms
+  y_max = h_inc -> GetMaximum(); 
+  template_h_KE -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
+  template_h_KE -> Draw("hist");
+  h_inc -> SetLineColor(kGreen);
+  h_inc -> SetMarkerStyle(9);
+  h_inc -> SetMarkerColor(kGreen);
+  //h_inc -> SetLineWidth(2);
+  h_inc -> Draw("epsame");
+  h_maden_inc -> SetLineColor(kRed);
+  h_maden_inc -> SetMarkerStyle(9);
+  h_maden_inc -> SetMarkerColor(kGreen);
+  h_maden_inc -> Draw("histsame");
+  h_maden_inc -> SetLineWidth(2);
+  h_inc -> Draw("epsame");
+  TLegend *l = new TLegend(0.2, 0.7, 0.6, 0.9);
+  l -> AddEntry(h_inc, "Original Inc.", "lp");
+  l -> AddEntry(h_maden_inc, "Produced Inc. Using Init. and End", "l");
+  l -> Draw("same");
   latex_ProtoDUNE.DrawLatex(0.16, 0.96, "#font[62]{ProtoDUNE-SP} #font[42]{#it{#scale[0.8]{Preliminary}}}");
   latex_data_POT.DrawLatex(0.69, 0.96, "Run 1, " + beam_P + " GeV/c Beam");
-  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Xsec_" + interaction + beam_P + "GeV_true_next_slice.pdf";
+  latex_textbox.DrawLatex(0.30, 0.65, "Incident #pi^{+}");
+  pdfname = WORKING_DIR + "/output/plots/PionXsec/Xsec/Eslice_pion_Incident_Comparison_" + beam_P + "GeV_true_all.pdf";
   c -> SaveAs(pdfname);
 
   c -> Close();
@@ -539,7 +636,13 @@ void test_impact_of_assumption(TString graph_str, TString legend_str, TString in
 
 void Run_Draw_Eslice(TString file_prefix, TString file_suffix, TString interaction, TString P_str, TString dir){
   //Draw_Eslice_distribution("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, interaction, "KE [MeV]", P_str, 0., 1200., false);
-  Draw_Eslice_distribution_inc_true("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, interaction, "KE [MeV]", P_str, 0., 1000., false);
+  //Draw_Eslice_distribution_inc_true("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, interaction, "KE [MeV]", P_str, 0., 1000., false);
+  TString interactions_str[7] = {"InElas", "Absorption", "ChargeEx", "DoubleChargeEx", "PiProd", "QuasiElas", "EQE_pass"};
+  TString true_gr_names[7] = {"total_inel_KE", "abs_KE", "cex_KE", "dcex_KE", "prod_KE", "inel_KE", "inel_KE"};
+  double y_maxs[7] = {1200., 1000., 500., 400., 500., 600., 600.};
+  for(int i = 0; i < 7; i++){
+    Draw_Eslice_distribution_inc_true("_" + file_prefix + "_" + P_str + "GeV" + file_suffix, dir, interactions_str[i], true_gr_names[i], "KE [MeV]", P_str, 0., 1000., y_maxs[i], false);
+  }
 }
 
 void Draw_Xsec(){
@@ -553,6 +656,7 @@ void Draw_Xsec(){
 
 
   // == E slice
+  //mc_PionXsec_1.0GeV_Eslice_test.root
   //mc_PionXsec_1.0GeV_beam_study.root
   file_suffix = "_Eslice_test.root";
   //Run_Draw_Eslice("PionXsec", file_suffix, "QE_", "1.0", "beam_window_Preweight_piOnly");

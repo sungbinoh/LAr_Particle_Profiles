@@ -5,10 +5,6 @@ const double pitch = 0.65; // [cm]
 void ProfileMaker::Execute(){
   cout << "[ProfileMaker::Execute] Start" << endl;
 
-  double mass_muon = 105.658; // [MeV]
-  double mass_pion = 139.57; // [MeV]
-  double mass_proton = 938.272; // [MeV]
-
   // == Test functions
   //KE_to_ResLength_BB(200, mass_muon);
   cout << ResLength_to_KE_BB(KE_to_ResLength_BB(200, mass_muon), mass_muon) << endl;
@@ -43,6 +39,9 @@ void ProfileMaker::Execute(){
   cout << "[KE_to_ResLength_BB] pion KE 700 MeV (P " << KE_to_Momentum(700, mass_pion) << " MeV) : " << KE_to_ResLength_BB(700., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 1000 MeV (P " << KE_to_Momentum(1000, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1000., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 1500 MeV (P " << KE_to_Momentum(1500, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1500., mass_pion) << " cm" << endl;
+
+  cout << "[KE_to_ResLength_BB] muon KE 100 MeV (P " << KE_to_Momentum(100, mass_muon) << " MeV) : " << KE_to_ResLength_BB(100., mass_muon) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 150 MeV (P " << KE_to_Momentum(150, mass_muon) << " MeV) : " << KE_to_ResLength_BB(150., mass_muon) << " cm" << endl;
 
   cout << "[P_to_ResLength_BB] pion Momentum 1000 MeV/c (KE " << Momentum_to_KE(1000., mass_pion) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(1000., mass_pion), mass_pion) << " cm" << endl;
 
@@ -223,36 +222,46 @@ void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mas
   this_gaus -> SetParameter(1, mean);
   this_gaus -> SetParameter(2, sigma);
   TH1D * h_P = new TH1D("", "", 300., 0., 1500.);
-  TH1D * h_range = new TH1D("", "", 160., 0., 800.);
+  TH1D * h_range_pion = new TH1D("", "", 160., 0., 800.);
+  TH1D * h_range_proton = new TH1D("", "", 80., 0., 800.);
   int N_trial = 100000.;
   for(int i = 0; i < N_trial; i++){
     if(i % 1000 == 0) cout << i << " / " << N_trial << endl;
     double this_P = this_gaus -> GetRandom();
     h_P -> Fill(this_P);
-    double this_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass), mass);
-    h_range -> Fill(this_range);
-    //cout << "this_P : " << this_P << ",m this_range : " << this_range << endl;
+    double this_pion_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass_pion), mass_pion);
+    double this_proton_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass_proton), mass_proton);
+    h_range_pion -> Fill(this_pion_range);
+    h_range_proton -> Fill(this_proton_range);
+    //cout << "this_P ; " << this_P << ", KE_pion : " << Momentum_to_KE(this_P, mass_pion) << ", this_pion_range : " << this_pion_range << ", KE_proton : " << Momentum_to_KE(this_P, mass_proton) << ", this_proton_range : " << this_proton_range << endl;
   }
+
 
   TCanvas *c = new TCanvas("", "", 800, 600);
   gStyle->SetOptStat(0);
 
   // == Draw h_P
   double y_max = h_P -> GetMaximum();
-  y_max = std::max(y_max, h_range -> GetMaximum());
+  y_max = std::max(y_max, h_range_pion -> GetMaximum());
+  y_max = std::max(y_max, h_range_proton -> GetMaximum());
   TH1D *template_h = new TH1D("", "", 1., 0., 1400.);
-  template_h ->GetXaxis() -> SetTitle("KE [MeV] || Range [cm]");
-  template_h ->GetXaxis() -> SetTitleOffset(1.3);
-  template_h ->GetYaxis() -> SetTitle("Events");
+  template_h -> GetXaxis() -> SetTitle("Momentum [MeV/c] || Range [cm]");
+  template_h -> GetXaxis() -> SetTitleOffset(1.3);
+  template_h -> GetYaxis() -> SetTitle("Events");
   template_h -> GetYaxis() -> SetRangeUser(0., y_max * 1.5);
   template_h -> Draw();
 
   h_P -> SetLineColor(kRed);
   h_P -> SetLineWidth(2);
   h_P -> Draw("histsame");
-  h_range -> SetLineColor(kBlue);
-  h_range -> SetLineWidth(2);
-  h_range -> Draw("histsame");
+  h_range_pion -> SetLineColor(kBlue);
+  h_range_pion -> SetLineWidth(2);
+  h_range_pion -> Draw("histsame");
+  h_range_proton -> SetLineColor(kGreen);
+  h_range_proton -> SetLineWidth(2);
+  h_range_proton -> Draw("histsame");
+
+  TLegend *l = new TLegend();
 
   c -> SaveAs("./output/plots/BeamStudy/" + name + ".pdf");
   
@@ -438,7 +447,7 @@ double ProfileMaker::KE_to_Momentum(double KE, double mass){
 }
 
 double ProfileMaker::Momentum_to_KE(double P, double mass){
-  double KE = sqrt(pow(P, 2) + mass) - mass;
+  double KE = sqrt(pow(P, 2) + pow(mass, 2)) - mass;
   return KE;
 }
 

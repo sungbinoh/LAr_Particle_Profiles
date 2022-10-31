@@ -26,6 +26,11 @@ public:
   void Validate_Landau(double KE, double mass);
   ProfileMaker();
   virtual ~ProfileMaker();
+
+private:
+  double mass_muon = 105.658; // [MeV]
+  double mass_pion = 139.57; // [MeV]
+  double mass_proton = 938.272; // [MeV]
 };
 
 #endif
