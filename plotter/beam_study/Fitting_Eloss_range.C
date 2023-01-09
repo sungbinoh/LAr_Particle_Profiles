@@ -59,11 +59,13 @@ TF1 *langaufit(TH1D *his, Double_t *fitrange, Double_t *startvalues, Double_t *p
 }
 
 
-void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin){
+void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin, TString KE_or_P){
+
+  //if(filename.Contains("muon") && !dir.Contains("muon")) return;
 
   TString input_file_dir = getenv("LArProf_WD");
   TString root_file_path =input_file_dir + "/output/root/";
-  TFile *f_out = new TFile(root_file_path + "Fitting_Eloss_" + data_or_mc + "_" + histname + "_" + dir + filename, "RECREATE");
+  TFile *f_out = new TFile(root_file_path + "/Fitting_results/Fitting_" + KE_or_P + "loss_" + data_or_mc + "_" + histname + "_" + dir + filename, "RECREATE");
   TFile *f_mc = new TFile(root_file_path + data_or_mc + filename);
   gDirectory -> cd(dir);
   vector<double> KE_vec;
@@ -78,15 +80,25 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
     KE_low = 300.;
     KE_high = 600.;
   }
+
+  if(KE_or_P == "P"){
+    KE_low = 800.;
+    KE_high = 1200.;
+    if(dir.Contains("muon")){
+      KE_low = 850.;
+      KE_high = 1150.;
+    }
+  }
   int KE_step = 50;
+  if(dir.Contains("muon")) KE_step = 50;
   int N_KE_steps = (KE_high - KE_low) / KE_step;
   for(int i = 0; i < N_KE_steps; i++){
     TString KE_range = Form("%dto%dMeV", KE_low + KE_step * i, KE_low + KE_step * (i + 1) );
-    TString this_histname = "htrack_KE_diff_" + histname + "_nonscraper_KE_beam_inst" + KE_range + "_" + dir;
-    if(histname.Contains("KE_ff_reco")) this_histname = "htrack_diff_" + histname + "_KE_beam_inst" + KE_range + "_" + dir;
+    TString this_histname = "htrack_" + KE_or_P + "_diff_" + histname + "_nonscraper_" + KE_or_P + "_beam_inst" + KE_range + "_" + dir;
+    if(histname.Contains("ff_reco")) this_histname = "htrack_diff_" + histname + "_" + KE_or_P + "_beam_inst" + KE_range + "_" + dir;
     cout << "[Fit_and_Draw] Fitting " << this_histname  + "_1" << endl;
 
-    cout << "[Fit_and_Draw] Found the histogram" << endl;
+    //cout << "[Fit_and_Draw] Found the histogram" << endl;
     TH1D *this_hist = nullptr;
     if(data_or_mc == "mc"){
       if(dir.Contains("pion")){
@@ -97,13 +109,13 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
 
 	if(((TH1D*)gDirectory -> Get(this_histname + "_3"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_3"));
 	if(((TH1D*)gDirectory -> Get(this_histname + "_4"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_4"));
-	if(((TH1D*)gDirectory -> Get(this_histname + "_5"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_5"));
+ 	if(((TH1D*)gDirectory -> Get(this_histname + "_5"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_5"));
  	if(((TH1D*)gDirectory -> Get(this_histname + "_6"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_6"));
 	if(((TH1D*)gDirectory -> Get(this_histname + "_7"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_7"));
 	if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
 	if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_9"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_9"));
-
+	if(((TH1D*)gDirectory -> Get(this_histname + "_0"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_0"));
       }
       if(dir.Contains("proton")){
 	if(!((TH1D*)gDirectory -> Get(this_histname + "_2"))) continue;
@@ -119,7 +131,23 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
         if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_9"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_9"));
-
+        if(((TH1D*)gDirectory -> Get(this_histname + "_0"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_0"));
+      }
+      if(dir.Contains("muon")){
+	if(!((TH1D*)gDirectory -> Get(this_histname + "_3"))) continue;
+        this_hist = (TH1D*)gDirectory -> Get(this_histname + "_3") -> Clone();
+	if(histname.Contains("Range")){
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_1"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_1"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_3"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_2"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_4"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_4"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_5"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_5"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_6"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_6"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_7"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_7"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_9"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_9"));
+	  if(((TH1D*)gDirectory -> Get(this_histname + "_0"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_0"));
+	}
       }
     }
     else if(data_or_mc == "data"){
@@ -128,10 +156,12 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
     }
     else continue;
 
-    if(this_hist != nullptr) cout << "[Fit_and_Draw] Found the histogram" << endl;
+    if(this_hist == nullptr) continue;
+    if(this_hist != nullptr) cout << "[Fit_and_Draw] Found : " << this_histname << endl;
     this_hist -> Rebin(rebin);
     double max_x = this_hist -> GetBinCenter(this_hist -> GetMaximumBin());
-    double fit_x_min = max_x - width;
+    //double fit_x_min = max_x - width;
+    double fit_x_min = -200.;
     double fit_x_max = max_x + width;
     TF1 *this_gaus = new TF1("fit_gaus", "gaus", fit_x_min, fit_x_max);
     this_hist -> Fit(this_gaus, "R", "", fit_x_min, fit_x_max);
@@ -147,6 +177,24 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
     KE_err_vec.push_back((KE_step + 0.) / 2.0);
     cout << "[Fit_and_Draw] this_KE : " << this_KE << " +- " << (KE_step + 0.) / 2.0 << endl;
 
+    TCanvas *c_temp = new TCanvas("", "", 600, 600);
+    this_hist -> Draw("e0");
+    this_hist -> GetXaxis() -> SetTitle("P_{Beam Inst.} - P_{ff}^{true} [MeV]");
+    if(this_histname.Contains("RangeFF")) this_hist -> GetXaxis() -> SetTitle("P_{ff}^{reco} - P_{ff}^{range} [MeV]");
+    //this_hist -> GetXaxis() -> SetTitle("P_{ff}^{reco} - P_{ff}^{true} [MeV]");
+
+    TString mu_result_str = Form("#mu = %.2f MeV", this_mean);
+    TLatex mu_result_latex;
+    mu_result_latex.SetNDC();
+    mu_result_latex.SetTextSize(0.035);
+    mu_result_latex.DrawLatex(0.25, 0.60, mu_result_str);
+
+    TString pdfname_temp = "";
+    if(dir.Contains("muon")) pdfname_temp = "./output/plots/BeamStudy/Upstream_Eloss/muon/fitting/" + data_or_mc + "_" + this_histname + ".pdf";
+    if(dir.Contains("pion")) pdfname_temp = "./output/plots/BeamStudy/Upstream_Eloss/pion/fitting/" + data_or_mc + "_" + this_histname + ".pdf";
+    if(dir.Contains("proton")) pdfname_temp = "./output/plots/BeamStudy/Upstream_Eloss/proton/fitting/" + data_or_mc + "_" + this_histname + ".pdf";
+    c_temp -> SaveAs(pdfname_temp);
+
     f_out -> cd();
     this_hist -> SetName(this_histname);
     this_hist -> Write();
@@ -154,13 +202,21 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
     gDirectory -> cd(dir);
   }
 
+  if(mean_vec.size() == 0) return;
+
   TGraphErrors *Eloss_ratio_gr = new TGraphErrors(N_KE_steps, &KE_vec[0], &mean_vec[0], &KE_err_vec[0], &mean_err_vec[0]);
 
   TCanvas *c = new TCanvas("", "", 800, 600);
   canvas_margin(c);
   gStyle -> SetOptStat(1111);
   gStyle->SetOptFit(0);
-  TH1D* template_h = new TH1D("", "", 1., KE_low - 2.0 * KE_step, KE_high + 2.0 * KE_step);
+  double x_low_template = KE_low - 2.0 * KE_step;
+  double x_high_template = KE_high + 2.0 * KE_step;
+  if(KE_or_P == "P"){
+    x_low_template = 700.;
+    x_high_template = 1300.;
+  }
+  TH1D* template_h = new TH1D("", "", 1., x_low_template, x_high_template);
   template_h -> SetStats(0);
   gStyle->SetOptTitle(0);
   gStyle->SetLineWidth(2);
@@ -187,7 +243,7 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   f_pol_1 -> SetLineStyle(7);
   f_pol_2 -> SetLineStyle(7);
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")) f_pol_1 -> Draw("lsame");
-  else f_pol_2 -> Draw("lsame");
+  else if(!histname.Contains("ff_reco")) f_pol_2 -> Draw("lsame");
 
   TF1 * f_comparison_pol_2 = new TF1("f_comparison_pol_2", "pol2" , KE_low + 0., KE_high + 0.);
   f_comparison_pol_2 -> SetParameter(0, 3.97800e+01);
@@ -195,21 +251,21 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   f_comparison_pol_2 -> SetParameter(2, 4.49754e-04);
   f_comparison_pol_2 -> SetLineColor(kBlue);
   f_comparison_pol_2 -> SetLineStyle(7);
-  f_comparison_pol_2 -> Draw("lsame");
+  if(!histname.Contains("ff_reco")) f_comparison_pol_2 -> Draw("lsame");
 
   TString fit_fuction_str = "";
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")) fit_fuction_str = "Fitted p_{1}x + p_{0}";
-  else fit_fuction_str = "Fitted p_{2} x^{2} + p_{1}x + p_{0}";
+  else if(!histname.Contains("ff_reco")) fit_fuction_str = "Fitted p_{2} x^{2} + p_{1}x + p_{0}";
 
   TString fit_result_str = "";
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")) fit_result_str = Form("%.2e + %.2e x", f_pol_1 -> GetParameter(0), f_pol_1 -> GetParameter(1));
-  else fit_result_str = Form("%.2e + %.2e x + %.2e x^{2}", f_pol_2 -> GetParameter(0), f_pol_2 -> GetParameter(1), f_pol_2 -> GetParameter(2));
+  else if(!histname.Contains("ff_reco")) fit_result_str = Form("%.2e + %.2e x + %.2e x^{2}", f_pol_2 -> GetParameter(0), f_pol_2 -> GetParameter(1), f_pol_2 -> GetParameter(2));
 
   TLegend *l = new TLegend(0.18, 0.7, 0.55, 0.85);
   l -> AddEntry(f_pol_1, fit_fuction_str, "l");
   //l -> AddEntry(f_comparison_pol_2, "#mu + 9.48", "l");
   l -> SetLineColor(kWhite); 
-  l -> Draw("same");
+  if(!histname.Contains("ff_reco")) l -> Draw("same");
 
   double p0, p1, p2, p0_err, p1_err, p2_err;
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")){
@@ -239,20 +295,21 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   latex_p0.SetTextSize(0.035);
   latex_p1.SetTextSize(0.035);
   latex_p2.SetTextSize(0.035);
-  latex_p0.DrawLatex(0.20, 0.66, p0_str);
-  latex_p1.DrawLatex(0.20, 0.62, p1_str);
+  if(!histname.Contains("ff_reco")) latex_p0.DrawLatex(0.20, 0.66, p0_str);
+  if(!histname.Contains("ff_reco")) latex_p1.DrawLatex(0.20, 0.62, p1_str);
   //if(!histname.Contains("diff_true")) latex_p2.DrawLatex(0.20, 0.58, p2_str);
-  if(!(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF"))) latex_p2.DrawLatex(0.20, 0.58, p2_str);
-
+  if(!(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF"))){
+    if(!histname.Contains("ff_reco")) latex_p2.DrawLatex(0.20, 0.58, p2_str);
+  }
 
   // ========== For fit up/down shapes ========== //
   TH1D *hint = new TH1D("hint", "Fitted Gaussian with .95 conf.band", 1000., KE_low, KE_high);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint);
-  hint->SetStats(false);
-  hint->SetFillColorAlpha(kRed, 0.3);
+  hint -> SetStats(false);
+  hint -> SetFillColorAlpha(kRed, 0.3);
   hint -> SetMarkerSize(0);
   hint -> SetLineColor(kRed);
-  hint->Draw("e3 same");
+  if(!histname.Contains("ff_reco")) hint -> Draw("e3 same");
 
   TH1D *h_up = new TH1D("h_up", "", 1000., KE_low, KE_high);
   TH1D *h_down = new TH1D("h_down","", 1000., KE_low, KE_high);
@@ -268,12 +325,12 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   TF1 * h_up_pol_2 = new TF1("h_up_pol_2", "pol2", KE_low + 0., KE_high + 0.);
   h_up -> Fit(h_up_pol_2, "R0", "", KE_low + 0., KE_high + 0.);
   h_up_pol_2 -> SetLineColor(kBlue);
-  h_up_pol_2 -> Draw("lsame");
+  if(!histname.Contains("ff_reco")) h_up_pol_2 -> Draw("lsame");  
 
   TF1 * h_down_pol_2 = new TF1("h_down_pol_2", "pol2", KE_low + 0., KE_high + 0.);
   h_down -> Fit(h_down_pol_2, "R0", "", KE_low + 0., KE_high + 0.);
   h_down_pol_2 -> SetLineColor(kCyan);
-  h_down_pol_2 ->Draw("lsame");
+  if(!histname.Contains("ff_reco")) h_down_pol_2 ->Draw("lsame");
 
   TLegend * l_err = new TLegend(0.2, 0.30, 0.92, 0.35);
   l_err -> SetNColumns(2);
@@ -292,9 +349,11 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   latex_p0_up.SetTextSize(0.035);
   latex_p1_up.SetTextSize(0.035);
   latex_p2_up.SetTextSize(0.035);
-  latex_p0_up.DrawLatex(0.20, 0.26, p0_up);
-  latex_p1_up.DrawLatex(0.20, 0.22, p1_up);
-  latex_p2_up.DrawLatex(0.20, 0.18, p2_up);
+  if(!histname.Contains("ff_reco")){
+    latex_p0_up.DrawLatex(0.20, 0.26, p0_up);
+    latex_p1_up.DrawLatex(0.20, 0.22, p1_up);
+    latex_p2_up.DrawLatex(0.20, 0.18, p2_up);
+  }
 
   TString p0_down, p1_down, p2_down;
   p0_down = Form("p_{0} = %.3e", h_down_pol_2 -> GetParameter(0));
@@ -307,15 +366,17 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   latex_p0_down.SetTextSize(0.035);
   latex_p1_down.SetTextSize(0.035);
   latex_p2_down.SetTextSize(0.035);
-  latex_p0_down.DrawLatex(0.60, 0.26, p0_down);
-  latex_p1_down.DrawLatex(0.60, 0.22, p1_down);
-  latex_p2_down.DrawLatex(0.60, 0.18, p2_down);
-
+  if(!histname.Contains("ff_reco")){
+    latex_p0_down.DrawLatex(0.60, 0.26, p0_down);
+    latex_p1_down.DrawLatex(0.60, 0.22, p1_down);
+    latex_p2_down.DrawLatex(0.60, 0.18, p2_down);
+  }
   // ================================================== //
 
   TString latex_sample_str = "";
   if(dir.Contains("pion")) latex_sample_str = "(#pi^{#pm} Elas. & Inel.)";
   if(dir.Contains("proton")) latex_sample_str = "(proton #chi^{2}_{proton} < 10)";
+  if(dir.Contains("muon")) latex_sample_str = "(#mu^{#pm} Stopped)";
   if(data_or_mc == "mc") latex_sample_str = "MC " + latex_sample_str;
   if(data_or_mc == "data") latex_sample_str = "Data " + latex_sample_str;
   TLatex latex_ProtoDUNE, latex_sample;
@@ -331,6 +392,14 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
   this_line -> SetLineStyle(5);
   this_line -> SetLineColor(kRed);
   this_line -> Draw("same");
+
+  // FIXME : only for pion momentum Spec. - true
+  /*
+  TLine *line_inclusive_mu = new TLine(x_low_template, 13.49, x_high_template, 13.49);
+  line_inclusive_mu -> SetLineStyle(2);
+  line_inclusive_mu -> SetLineColor(kBlack);
+  line_inclusive_mu -> Draw("same");
+  */
 
   // == For pol_1 difference
   double pol_1_low  = f_pol_1 -> Eval(KE_low);
@@ -366,13 +435,14 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
 
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")) latex_pol_1_diff.DrawLatex(0.2, 0.45, pol_1_diff_str);
   else{
-    latex_pol_2_diff_low.DrawLatex(0.3, 0.41, pol_2_diff_low_str);
-    latex_pol_2_diff_high.DrawLatex(0.8,0.67, pol_2_diff_high_str);
+    //latex_pol_2_diff_low.DrawLatex(0.3, 0.41, pol_2_diff_low_str);
+    //latex_pol_2_diff_high.DrawLatex(0.8,0.67, pol_2_diff_high_str);
   }
 
   TString pdfname = "";
-  if(dir.Contains("pion")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/pion/Eloss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
-   if(dir.Contains("proton")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/proton/Eloss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
+  if(dir.Contains("muon")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/muon/" + KE_or_P + "loss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
+  if(dir.Contains("pion")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/pion/" + KE_or_P + "loss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
+  if(dir.Contains("proton")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/proton/" + KE_or_P + "loss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   c -> SaveAs(pdfname);
 
   c -> Close();
@@ -387,6 +457,8 @@ void Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString his
 }
 
 void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin){
+
+  if(filename.Contains("muon") && !dir.Contains("muon")) return;
 
   TString input_file_dir = getenv("LArProf_WD");
   TString root_file_path =input_file_dir + "/output/root/";
@@ -406,6 +478,7 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
     KE_high = 600.;
   }
   int KE_step = 50;
+  if(dir.Contains("muon")) KE_step = 100;
   int N_KE_steps = (KE_high - KE_low) / KE_step;
 
   for(int i = 0; i < N_KE_steps; i++){
@@ -435,8 +508,8 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
       if(dir.Contains("proton")){
         if(!((TH1D*)gDirectory -> Get(this_histname + "_2"))) continue;
         this_hist = (TH1D*)gDirectory -> Get(this_histname + "_2") -> Clone();
-        //if(((TH1D*)gDirectory -> Get(this_histname + "_1"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_1"));
-	/*
+        if(((TH1D*)gDirectory -> Get(this_histname + "_1"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_1"));
+	
         if(((TH1D*)gDirectory -> Get(this_histname + "_3"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_3"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_4"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_4"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_5"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_5"));
@@ -445,7 +518,12 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
         if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
         if(((TH1D*)gDirectory -> Get(this_histname + "_8"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_8"));
 	if(((TH1D*)gDirectory -> Get(this_histname + "_9"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_9"));
-	*/
+	
+      }
+      if(dir.Contains("muon")){
+	if(!((TH1D*)gDirectory -> Get(this_histname + "_3"))) continue;
+        this_hist = (TH1D*)gDirectory -> Get(this_histname + "_3") -> Clone();
+	//if(((TH1D*)gDirectory -> Get(this_histname + "_0"))) this_hist -> Add((TH1D*)gDirectory -> Get(this_histname + "_0"));
       }
     }
     else if(data_or_mc == "data"){
@@ -454,7 +532,7 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
     }
     else continue;
 
-    if(this_hist != nullptr) cout << "[Fit_and_Draw] Found the histogram" << endl;
+    if(this_hist != nullptr) cout << "[Fit_and_Draw] Found : " << this_histname << endl;
     this_hist -> Rebin(rebin);
     double max_x = this_hist -> GetBinCenter(this_hist -> GetMaximumBin());
     double fit_x_min = max_x - width;
@@ -491,12 +569,21 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
     KE_err_vec.push_back((KE_step + 0.) / 2.0);
     cout << "[Fit_and_Draw] this_KE : " << this_KE << " +- " << (KE_step + 0.) / 2.0 << endl;
 
+    TCanvas *c_temp = new TCanvas("", "", 800, 600);
+    this_hist -> Draw();
+    TString pdfname_temp = "";
+    if(dir.Contains("pion")) pdfname_temp = "./output/plots/BeamStudy/Upstream_Eloss/pion/fitting/" + this_histname + ".pdf";
+    if(dir.Contains("proton")) pdfname_temp = "./output/plots/BeamStudy/Upstream_Eloss/proton/fitting/" + this_histname + ".pdf";
+    c_temp -> SaveAs(pdfname_temp);
+
     f_out -> cd();
     this_hist -> SetName(this_histname);
     this_hist -> Write();
     f_mc -> cd();
     gDirectory -> cd(dir);
   }
+
+  if(mean_vec.size() == 0) return;
 
   TGraphErrors *Eloss_ratio_gr = new TGraphErrors(N_KE_steps, &KE_vec[0], &mean_vec[0], &KE_err_vec[0], &mean_err_vec[0]);
 
@@ -570,6 +657,7 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
   latex_p1.DrawLatex(0.20, 0.62, p1_str);
 
   TString latex_sample_str = "";
+  if(dir.Contains("muon")) latex_sample_str = "(#mu^{#pm} Stopped)";
   if(dir.Contains("pion")) latex_sample_str = "(#pi^{#pm} Elas. & Inel.)";
   if(dir.Contains("proton")) latex_sample_str = "(proton #chi^{2}_{proton} < 10)";
   if(data_or_mc == "mc") latex_sample_str = "MC " + latex_sample_str;
@@ -610,6 +698,7 @@ void Fit_and_Draw_Landau(TString data_or_mc, TString filename, TString dir, TStr
   if(histname.Contains("TrueBeam_TrueFF") || histname.Contains("TrueBeam_FittedFF")) latex_pol_1_diff.DrawLatex(0.2, 0.45, pol_1_diff_str); 
 
   TString pdfname = "";
+  if(dir.Contains("muon")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/muon/Eloss_Landau_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   if(dir.Contains("pion")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/pion/Eloss_Landau_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   if(dir.Contains("proton")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/proton/Eloss_Landau_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   c -> SaveAs(pdfname);
@@ -721,6 +810,8 @@ void Verify_and_Draw(TString data_or_mc, TString filename, TString dir, TString 
     gDirectory -> cd(dir);
   }
 
+  if(mean_vec.size() == 0) return;
+
   TGraphErrors *Eloss_ratio_gr = new TGraphErrors(N_KE_steps, &KE_vec[0], &mean_vec[0], &KE_err_vec[0], &mean_err_vec[0]);
 
   TCanvas *c = new TCanvas("", "", 800, 600);
@@ -762,6 +853,7 @@ void Verify_and_Draw(TString data_or_mc, TString filename, TString dir, TString 
 
   
   TString pdfname = "";
+  if(dir.Contains("muon")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/muon/Eloss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   if(dir.Contains("pion")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/pion/Eloss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   if(dir.Contains("proton")) pdfname = "./output/plots/BeamStudy/Upstream_Eloss/proton/Eloss_" + data_or_mc + "_" + histname + "_" + dir + ".pdf";
   c -> SaveAs(pdfname);
@@ -776,24 +868,19 @@ void Verify_and_Draw(TString data_or_mc, TString filename, TString dir, TString 
   mean_err_vec.clear();
   std_vec.clear();
 
-
-
 }
 
 
+void Run_Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin, TString KE_or_P){
 
-
-
-void Run_Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin){
-
-  TString particle_str_arr[2] = {"proton", "pion"};
-  int N_particles = 2;
+  TString particle_str_arr[3] = {"proton", "pion", "muon"};
+  int N_particles = 3;
   if(histname.Contains("Fitted")) N_particles = 1;
-  TString cutflow_arr[1] = {"BeamWindow"};
+  TString cutflow_arr[2] = {"BeamWindow", "BeamScraper"};
   for(int i = 0; i < N_particles; i++){
-    for(int j = 0; j < 1; j++){
+    for(int j = 0; j < 2; j++){
       TString this_dir = particle_str_arr[i] + "_" + cutflow_arr[j] + "_" + dir;
-      Fit_and_Draw(data_or_mc, filename, this_dir, histname, title_X, title_Y, width, rebin);
+      Fit_and_Draw(data_or_mc, filename, this_dir, histname, title_X, title_Y, width, rebin, KE_or_P);
       if(histname == "TrueBeam_TrueFF") Fit_and_Draw_Landau(data_or_mc, filename, this_dir, histname, title_X, title_Y, width, rebin);
     }
   }
@@ -801,8 +888,8 @@ void Run_Fit_and_Draw(TString data_or_mc, TString filename, TString dir, TString
 
 void Run_Verify_and_Draw(TString data_or_mc, TString filename, TString dir, TString histname, TString title_X, TString title_Y, double width, double rebin){
 
-  TString particle_str_arr[2] = {"proton", "pion"};
-  int N_particles = 2;
+  TString particle_str_arr[3] = {"proton", "pion", "muon"};
+  int N_particles = 3;
   if(histname.Contains("Fitted")) N_particles = 1;
   TString cutflow_arr[2] = {"BeamWindow", "BeamScraper"};
   for(int i = 0; i < N_particles; i++){
@@ -819,13 +906,33 @@ void Fitting_Eloss_range(){
 
   // === For study
   /*
-  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{true}) [MeV]", 35., 4.);
-  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_FittedFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{fitted}) [MeV]", 35., 4.);
-  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "TrueBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.}^{true} - KE_{ff}^{true}) [MeV]", 35., 5.);
-  Run_Fit_and_Draw("data", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_FittedFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{fitted}) [MeV]", 35., 4.);
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{true}) [MeV]", 35., 4., "KE");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_FittedFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{fitted}) [MeV]", 35., 4., "KE");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "TrueBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.}^{true} - KE_{ff}^{true}) [MeV]", 35., 5., "KE");
+  Run_Fit_and_Draw("data", "_Beam_Study_1.0GeV.root", "noweight", "RecoBeam_FittedFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{fitted}) [MeV]", 35., 4., "KE");
   */
+
+  /*
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{true}) [MeV]", 35., 5., "KE");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_RangeFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{range}) [MeV]", 40., 5., "KE");
+  Run_Fit_and_Draw("data", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_RangeFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.} - KE_{ff}^{range}) [MeV]", 40., 5., "KE");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "TrueBeam_TrueFF", "KE_{Beam Inst.} [MeV]", "#mu (KE_{Beam Inst.}^{true} - KE_{ff}^{true}) [MeV]", 40., 5., "KE");
+  */
+
+  //RecoBeam_FittedFF
+
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_TrueFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.} - P_{ff}^{true}) [MeV]", 100., 5., "P");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_RangeFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.} - P_{ff}^{range}) [MeV]", 100., 5., "P");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_FittedFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.} - P_{ff}^{range}) [MeV]", 100., 5., "P");
+  Run_Fit_and_Draw("data", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_RangeFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.} - P_{ff}^{range}) [MeV]", 100., 5., "P");
+  Run_Fit_and_Draw("data", "_Beam_Study_1.0GeV_muon.root", "noweight", "RecoBeam_FittedFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.} - P_{ff}^{range}) [MeV]", 100., 5., "P");
+  Run_Fit_and_Draw("mc", "_Beam_Study_1.0GeV_muon.root", "noweight", "TrueBeam_TrueFF", "P_{Beam Inst.} [MeV]", "#mu (P_{Beam Inst.}^{true} - P_{ff}^{true}) [MeV]", 100., 5., "P");
+
+
+  //Run_Fit_and_Draw("mc", "_PionXsec_1.0GeV_Escale_test.root", "noweight", "P_ff_reco_P_true", "P_{spec.} [MeV]", "#mu (P_{ff}^{reco} - P_{ff}^{true}) [MeV]", 100., 10., "P");
+
   // == After study, for performance validation
-  Run_Verify_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "KE_ff_reco_ElasTrue_KE_ff_true", "KE_{Beam Inst.} [MeV]", "#mu (KE_{ff}^{reco} - KE_{ff}^{true}) [MeV]", 35., 5.);
-  Run_Verify_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "KE_ff_reco_AllTrue_KE_ff_true", "KE_{Beam Inst.} [MeV]", "#mu (KE_{ff}^{reco} - KE_{ff}^{true}) [MeV]", 35., 4.);
+  //Run_Verify_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "KE_ff_reco_ElasTrue_KE_ff_true", "KE_{Beam Inst.} [MeV]", "#mu (KE_{ff}^{reco} - KE_{ff}^{true}) [MeV]", 35., 5.);
+  //Run_Verify_and_Draw("mc", "_Beam_Study_1.0GeV.root", "noweight", "KE_ff_reco_AllTrue_KE_ff_true", "KE_{Beam Inst.} [MeV]", "#mu (KE_{ff}^{reco} - KE_{ff}^{true}) [MeV]", 35., 4.);
   
 }

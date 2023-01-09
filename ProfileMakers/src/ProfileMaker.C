@@ -44,6 +44,8 @@ void ProfileMaker::Execute(){
   cout << "[KE_to_ResLength_BB] muon KE 150 MeV (P " << KE_to_Momentum(150, mass_muon) << " MeV) : " << KE_to_ResLength_BB(150., mass_muon) << " cm" << endl;
 
   cout << "[P_to_ResLength_BB] pion Momentum 1000 MeV/c (KE " << Momentum_to_KE(1000., mass_pion) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(1000., mass_pion), mass_pion) << " cm" << endl;
+  cout << "[P_to_ResLength_BB] proton Momentum 6000 MeV/c (KE " << Momentum_to_KE(6000., mass_proton) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(6000., mass_pion), mass_proton) << " cm" << endl;
+
 
   // == KE to dE/dx BB
   cout << "<dE/dx> pion KE = 20 MeV (P = " << KE_to_Momentum(20, mass_pion) << " MeV/c) : " << dEdx.dEdx_Bethe_Bloch(20, mass_pion) << "\t" << dEdx.dEdx_Landau_Vavilov(20, 0.65, mass_pion) << endl;
@@ -222,6 +224,7 @@ void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mas
   this_gaus -> SetParameter(1, mean);
   this_gaus -> SetParameter(2, sigma);
   TH1D * h_P = new TH1D("", "", 300., 0., 1500.);
+  TH1D * h_range_muon =new TH1D("", "", 160., 0., 800.);
   TH1D * h_range_pion = new TH1D("", "", 160., 0., 800.);
   TH1D * h_range_proton = new TH1D("", "", 80., 0., 800.);
   int N_trial = 100000.;
@@ -229,19 +232,22 @@ void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mas
     if(i % 1000 == 0) cout << i << " / " << N_trial << endl;
     double this_P = this_gaus -> GetRandom();
     h_P -> Fill(this_P);
+
+    double this_muon_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass_muon), mass_muon);
     double this_pion_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass_pion), mass_pion);
     double this_proton_range = KE_to_ResLength_BB(Momentum_to_KE(this_P, mass_proton), mass_proton);
+    h_range_muon -> Fill(this_muon_range);
     h_range_pion -> Fill(this_pion_range);
     h_range_proton -> Fill(this_proton_range);
     //cout << "this_P ; " << this_P << ", KE_pion : " << Momentum_to_KE(this_P, mass_pion) << ", this_pion_range : " << this_pion_range << ", KE_proton : " << Momentum_to_KE(this_P, mass_proton) << ", this_proton_range : " << this_proton_range << endl;
   }
-
 
   TCanvas *c = new TCanvas("", "", 800, 600);
   gStyle->SetOptStat(0);
 
   // == Draw h_P
   double y_max = h_P -> GetMaximum();
+  y_max = std::max(y_max, h_range_muon -> GetMaximum());
   y_max = std::max(y_max, h_range_pion -> GetMaximum());
   y_max = std::max(y_max, h_range_proton -> GetMaximum());
   TH1D *template_h = new TH1D("", "", 1., 0., 1400.);
@@ -254,6 +260,9 @@ void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mas
   h_P -> SetLineColor(kRed);
   h_P -> SetLineWidth(2);
   h_P -> Draw("histsame");
+  h_range_muon -> SetLineColor(kCyan);
+  h_range_muon -> SetLineWidth(2);
+  h_range_muon -> Draw("histsame");
   h_range_pion -> SetLineColor(kBlue);
   h_range_pion -> SetLineWidth(2);
   h_range_pion -> Draw("histsame");
