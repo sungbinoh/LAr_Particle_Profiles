@@ -15,6 +15,7 @@ public:
   void Produce_dEdx_PDF(TString name, double mass, double KE, double width, double xmin, double xmax, double ymax);
   void Produce_dEdx_likelihood(TString name, double mass, double dEdx, double width, double xmin, double xmax, double ymax);
   void Produce_Range_from_Momentum_Gaussian(TString name, double mass, double mean, double sigma);
+  void Produce_KE_vs_Range(TString name, double mass);
   double KE_to_Momentum(double KE, double mass);
   double Momentum_to_KE(double P, double mass);
   double KE_to_ResLength_BB(double KE, double mass);

@@ -52,6 +52,7 @@ void ProfileMakerCore::SwitchToTempDir(){
 }
 
 void ProfileMakerCore::SetOutfilePath(TString outname){
+  cout << "[ProfileMakerCore::SetOutfilePath] " << outname << endl;
   outfile = new TFile(outname,"RECREATE");
 };
 
