@@ -367,11 +367,10 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   double this_dEdx_BB = dEdx.dEdx_Bethe_Bloch(KE, mass);
 
   double par[5] = {this_kappa, beta * beta, this_xi, this_dEdx_BB, width};
-  cout << "[ProfileMaker::Produce_dEdx_PDF] par[0] : " << par[0] << ", par[1] : " << par[1] << endl;
 
   TF1 *this_PDF = dEdx.dEdx_PDF(par);
   this_PDF -> SetNpx(1000);
-  cout << "[ProfileMaker::Produce_dEdx_PDF] this_PDF -> Eval(2.1) : " << this_PDF -> Eval(2.1) << endl;
+
   TCanvas *c = new TCanvas("", "", 800, 600);
   gStyle->SetOptStat(0);
   //c -> SetLogx();
@@ -393,9 +392,13 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   l_MPV -> Draw("same");
   
   this_PDF -> Draw("lsame");
-  cout << "[ProfileMaker::Produce_dEdx_PDF] Integral : " << this_PDF -> Integral(0., 100.) << endl;
-  cout << "[ProfileMaker::Produce_dEdx_PDF] this_PDF.Mean() : " << this_PDF -> Mean(0., 100.) << ", this_dEdx_BB : " << this_dEdx_BB << endl;
 
+  // == Study cutoff for Landau PDF
+  double this_Landau_cutoff = dEdx.Landau_dE_cutoff(KE, width, mass);
+  cout << "[ProfileMaker::Produce_dEdx_PDF] this_Landau_cutoff : " << this_Landau_cutoff << endl;
+  //cout << "[ProfileMaker::Produce_dEdx_PDF] this_PDF.Mean() this_Landau_cutoff : " << this_PDF -> Mean(0., this_Landau_cutoff) << endl;
+  cout << "[ProfileMaker::Produce_dEdx_PDF] this_PDF.Mean() : " << this_PDF -> Mean(0., this_Landau_cutoff) << ", this_dEdx_BB : " << this_dEdx_BB << endl;
+  
 
   TLegend *l = new TLegend(0.6, 0.6, 0.85, 0.85);
   l -> AddEntry(l_mean, "<dE/dx>", "l");

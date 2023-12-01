@@ -28,6 +28,31 @@ double dEdx_functions::Get_Wmax(double KE, double mass){
   return Wmax;
 }
 
+double dEdx_functions::Landau_dE_cutoff(double KE, double width, double mass){
+
+  double this_cutoff = 100.;
+  double gamma = (KE/mass)+1.0;
+  double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
+  double Wmax = Get_Wmax(KE,mass);
+  double this_Landau_xi = Get_Landau_xi(KE, width, mass);
+
+  double this_kappa = this_Landau_xi / Wmax;
+  if(this_kappa > 0.01) return this_cutoff;
+
+  double lambda_bar = -1. * gamma_prime - beta * beta - TMath::Log(this_Landau_xi / Wmax);
+  double lambda_max = 0.51146 + 1.19486 * lambda_bar + (0.465814 + 0.0115374 * lambda_bar) * exp(1.17165 + 0.979242 * lambda_bar);
+  //cout << "[dEdx_functions::Landau_dE_cutoff] gamma_prime : " << gamma_prime << ", lambda_bar : " << lambda_bar << ", lambda_max : " << lambda_max << endl;
+  
+  TF1 *landau_f = new TF1("landau_f", "TMath::Landau(x)", -20., 5000.);
+  double repro_lambda_bar = landau_f -> Mean(-20., lambda_max);
+  //cout << "[dEdx_functions::Landau_dE_cutoff] repro_lambda_bar : " << repro_lambda_bar << endl;
+  //cout << "[dEdx_functions::Landau_dE_cutoff] lambda_bar - repro_lambda_bar : " << lambda_bar - repro_lambda_bar << endl;
+
+  this_cutoff = (lambda_max + gamma_prime + beta*beta + TMath::Log(this_Landau_xi / Wmax)) * (this_Landau_xi / width) + dEdx_Bethe_Bloch(KE, mass);
+
+  return this_cutoff;
+}
+
 double dEdx_functions::dEdx_Bethe_Bloch(double KE, double mass){
   double gamma = (KE/mass)+1.0;
   double beta = TMath::Sqrt(1-(1.0/(gamma*gamma)));
@@ -63,8 +88,8 @@ double dEdx_functions::dEdx_Landau_Vavilov(double KE, double dx, double mass){
   double delta = Density_Correction(beta, gamma);
   double xi = rho * dx * 0.5 * K * (18.0 / A) * pow(1. / beta, 2);
   double a0 = 2.0 * Me * pow(beta * gamma, 2) / I;
-  //double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ;
-  double this_dpdx = (xi / dx) * (TMath::Log(a0) + + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ; // == MPV of dE, FWHM = 4xi
+  //double this_dpdx = (xi / dx) * (TMath::Log(a0) + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ;
+  double this_dpdx = (xi / dx) * (TMath::Log(a0) + TMath::Log(xi / I) + 0.2 - pow(beta, 2) - delta) ; // == MPV of dE, FWHM = 4xi
   
   return this_dpdx;
 }

@@ -20,21 +20,27 @@ class dEdx_functions{
   const double A = 39.948; // [g / mol], atomic mass of Ar
   const double I = 188.0e-6; // [MeV], mean excitation energy
   const double Me = 0.511; // [Mev], mass of electron
+
   // == Parameters for the density correction
   const double density_C = 5.2146;
   const double density_y0 = 0.2;
   const double density_y1 = 3.0;
   const double density_a = 0.19559;
   const double density_k = 3.0;
+
   // == Parameters for Kappa
   //const 
-
   double Density_Correction(double beta, double gamma);
   double Get_Wmax(double KE, double mass);
   double dEdx_Bethe_Bloch(double KE, double mass);
   double Macroscopic_Xsec(double KE, double mass, double r_param);
   double dEdx_Landau_Vavilov(double KE, double dx, double mass);
   double Get_Landau_xi(double KE, double dx, double mass);
+
+  // == For Landau dE cutoff
+  const double gamma_prime = 1. - TMath::EulerGamma();
+  double Landau_dE_cutoff(double KE, double width, double mass);
+
   // == dEdx PDF
   //double dEdx_PDF_setting(double *x, double *par);
   TF1 *dEdx_PDF(double *par);
