@@ -1,10 +1,10 @@
-#include "canvas_margin.h"
+#include "canvas_margins.h"
 
-void canvas_margin::fixOverlay() {
+void canvas_margins::fixOverlay() {
   gPad->RedrawAxis();
 }
 
-void canvas_margin::setTDRStyle() {
+void canvas_margins::setTDRStyle() {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
 // For the canvas:
@@ -150,7 +150,7 @@ void canvas_margin::setTDRStyle() {
 
 }
 
-void canvas_margin::canvas_margin(TCanvas *c1){
+void canvas_margins::canvas_margin(TCanvas *c1){
   c1->SetTopMargin( 0.05 );
   c1->SetBottomMargin( 0.13 );
   c1->SetRightMargin( 0.05 );
@@ -158,7 +158,7 @@ void canvas_margin::canvas_margin(TCanvas *c1){
 
 }
 
-void canvas_margin::canvas_margin_limit(TCanvas *c1){
+void canvas_margins::canvas_margin_limit(TCanvas *c1){
   c1->SetTopMargin( 0.05 );
   c1->SetBottomMargin( 0.13 );
   c1->SetRightMargin( 0.05 );
@@ -166,7 +166,7 @@ void canvas_margin::canvas_margin_limit(TCanvas *c1){
 
 }
 
-void canvas_margin::canvas_margin(TCanvas *c1, TPad *c1_up, TPad *c1_down){
+void canvas_margins::canvas_margin(TCanvas *c1, TPad *c1_up, TPad *c1_down){
   c1_up->SetTopMargin( 0.07 );
   c1_up->SetBottomMargin( 0.02 );
   c1_up->SetLeftMargin( 0.15 );
@@ -186,7 +186,7 @@ void canvas_margin::canvas_margin(TCanvas *c1, TPad *c1_up, TPad *c1_down){
 
 }
 
-void canvas_margin::canvas_margin_twoplots(TCanvas *c1, TPad *c1_up, TPad *c1_down){
+void canvas_margins::canvas_margin_twoplots(TCanvas *c1, TPad *c1_up, TPad *c1_down){
   c1_up->SetTopMargin( 0.07 );
   c1_up->SetBottomMargin( 0.017 );
   c1_up->SetLeftMargin( 0.15 );
@@ -204,7 +204,7 @@ void canvas_margin::canvas_margin_twoplots(TCanvas *c1, TPad *c1_up, TPad *c1_do
 
 }
 
-void canvas_margin::hist_axis(TH1D *hist){
+void canvas_margins::hist_axis(TH1D *hist){
 
   hist->SetTitle("");
 
@@ -217,7 +217,7 @@ void canvas_margin::hist_axis(TH1D *hist){
 
 }
 
-void canvas_margin::hist_axis_limit(TH1D *hist){
+void canvas_margins::hist_axis_limit(TH1D *hist){
 
   hist->SetTitle("");
 
@@ -231,7 +231,7 @@ void canvas_margin::hist_axis_limit(TH1D *hist){
 
 }
 
-void canvas_margin::hist_axis(THStack *hist){
+void canvas_margins::hist_axis(THStack *hist){
 
   hist->SetTitle("");
 
@@ -244,7 +244,7 @@ void canvas_margin::hist_axis(THStack *hist){
 
 }
 
-void canvas_margin::hist_axis(TGraph *hist){
+void canvas_margins::hist_axis(TGraph *hist){
 
   hist->SetTitle("");
 
@@ -257,7 +257,7 @@ void canvas_margin::hist_axis(TGraph *hist){
 
 }
 
-void canvas_margin::hist_axis(TGraphAsymmErrors *hist){
+void canvas_margins::hist_axis(TGraphAsymmErrors *hist){
 
   hist->SetTitle("");
 
@@ -270,7 +270,7 @@ void canvas_margin::hist_axis(TGraphAsymmErrors *hist){
 
 }
 
-void canvas_margin::hist_axis(TH2D *hist){
+void canvas_margins::hist_axis(TH2D *hist){
 
   hist->SetTitle("");
 
@@ -283,7 +283,7 @@ void canvas_margin::hist_axis(TH2D *hist){
 
 }
 
-void canvas_margin::hist_axis(TH2F *hist){
+void canvas_margins::hist_axis(TH2F *hist){
 
   hist->SetTitle("");
 
@@ -296,7 +296,7 @@ void canvas_margin::hist_axis(TH2F *hist){
 
 }
 
-void canvas_margin::hist_axis(THStack *hist, TH1D *hist_compare){
+void canvas_margins::hist_axis(THStack *hist, TH1D *hist_compare){
 
   hist->SetTitle("");
 
@@ -318,7 +318,7 @@ void canvas_margin::hist_axis(THStack *hist, TH1D *hist_compare){
 
 }
 
-void canvas_margin::hist_axis(TH1D *hist, TH1D *hist_compare){
+void canvas_margins::hist_axis(TH1D *hist, TH1D *hist_compare){
 
   hist->SetTitle("");
 
@@ -342,7 +342,7 @@ void canvas_margin::hist_axis(TH1D *hist, TH1D *hist_compare){
 
 }
 
-void canvas_margin::hist_axis_twoplots(TH1D *hist, TH1D *hist_compare){
+void canvas_margins::hist_axis_twoplots(TH1D *hist, TH1D *hist_compare){
 
   hist->SetTitle("");
 
@@ -367,7 +367,7 @@ void canvas_margin::hist_axis_twoplots(TH1D *hist, TH1D *hist_compare){
 
 }
 
-void canvas_margin::hist_axis(TGraph *hist, TGraph *hist_compare){
+void canvas_margins::hist_axis(TGraph *hist, TGraph *hist_compare){
 
   hist->SetTitle("");
 
@@ -386,5 +386,12 @@ void canvas_margin::hist_axis(TGraph *hist, TGraph *hist_compare){
   hist_compare->GetYaxis()->SetTitleSize(0.12);
   hist_compare->GetYaxis()->SetTitleOffset(0.5);
   hist_compare->SetFillColorAlpha(45,0.35);
+
+}
+
+canvas_margins::canvas_margins(){
+
+}
+canvas_margins::~canvas_margins(){
 
 }

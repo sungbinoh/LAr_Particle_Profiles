@@ -775,6 +775,7 @@ double ProfileMaker::kappa(double this_KE, double width, double mass){
 
   return this_kappa;
 }
+
 ProfileMaker::ProfileMaker(){
 
 }

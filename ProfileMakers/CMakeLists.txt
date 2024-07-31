@@ -2,14 +2,14 @@
 set(SOURCES
   ProfileMakerCore.C
   ProfileMaker.C
-  canvas_margin.C
+  canvas_margins.C
   dEdx_functions.C
 )
 
 set(HDRFILES
   ProfileMakerCore.h
   ProfileMaker.h
-  canvas_margin.h
+  canvas_margins.h
   dEdx_functions.h
 )
 
