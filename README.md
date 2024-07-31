@@ -3,10 +3,21 @@
 ## Purpose
  To estimate particle profiles inside LAr
 
-## To run
+## Copy and setup
 ```
 git clone git@github.com:sungbinoh/LAr_Particle_Profiles.git
 source setup.sh
-make
+```
+
+## Compile
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ cmake --build . -- install
+```
+
+## Run
+```
 root -l -b -q run_profile.C
 ```

@@ -13,8 +13,9 @@ export LArProfLogWeb=''
 export LArProfLogWebDir=''
 
 #### Setup Directories ####
-source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup root v6_22_08d -q e20:p392:prof
+source /cvmfs/fermilab.opensciencegrid.org/packages/common/setup-env.sh ## -- For Alma 9
+source /cvmfs/larsoft.opensciencegrid.org/spack-packages/setup-env.sh
+spack load root@6.28.12
 
 echo "@@@@ Setup output directories"
 export LArProfRunlogDir=$LArProf_WD/output/log
@@ -26,8 +27,8 @@ export MYBIN=$LArProf_WD/bin/
 export PYTHONDIR=$LArProf_WD/python/
 export PATH=${MYBIN}:${PYTHONDIR}:${PATH}
 
-export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$LArProf_WD/ProfileMakers/include/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LArProf_LIB_PATH
+export ROOT_INCLUDE_PATH=/cvmfs/larsoft.opensciencegrid.org/spack-packages/opt/spack/linux-almalinux9-x86_64_v2/gcc-12.2.0/root-6.28.12-sfwfmqorvxttrxgfrfhoq5kplou2pddd/include/:$ROOT_INCLUDE_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LArProf_LIB_PATH:/cvmfs/larsoft.opensciencegrid.org/spack-packages/opt/spack/linux-almalinux9-x86_64_v2/gcc-12.2.0/root-6.28.12-sfwfmqorvxttrxgfrfhoq5kplou2pddd/lib/
 
 source $LArProf_WD/bin/BashColorSets.sh
 

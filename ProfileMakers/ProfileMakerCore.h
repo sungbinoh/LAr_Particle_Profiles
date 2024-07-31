@@ -25,6 +25,7 @@
 #include "TROOT.h"
 
 #include "dEdx_functions.h"
+#include "canvas_margins.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ class ProfileMakerCore {
   virtual ~ProfileMakerCore();
 
   dEdx_functions dEdx;
-
+  canvas_margins margin;
   virtual void Execute(){
 
   };

@@ -1,6 +1,6 @@
 #include "ProfileMakerCore.h"
 #include "dEdx_functions.h"
-
+#include "canvas_margins.h"
 ProfileMakerCore::ProfileMakerCore(){
   outfile = NULL;
 }
