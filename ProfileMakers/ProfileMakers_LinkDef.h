@@ -8,5 +8,6 @@
 #pragma link C++ class ProfileMakerCore+;
 #pragma link C++ class dEdx_functions+;
 #pragma link C++ class ProfileMaker+;
+#pragma link C++ class canvas_margins+;
 
 #endif

@@ -47,6 +47,9 @@ void ProfileMaker::Execute(){
   cout << "[KE_to_ResLength_BB] proton KE 2300 MeV (P " << KE_to_Momentum(2300, 938.272) << " MeV) : " << KE_to_ResLength_BB(2300., 938.272) << " cm" << endl;
 
 
+  cout << "[KE_to_ResLength_BB] pion KE 30 MeV (P " << KE_to_Momentum(30, mass_pion) << " MeV) : " << KE_to_ResLength_BB(30., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 40 MeV (P " << KE_to_Momentum(40, mass_pion) << " MeV) : " << KE_to_ResLength_BB(40., mass_pion) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] pion KE 41 MeV (P " << KE_to_Momentum(41, mass_pion) << " MeV) : " << KE_to_ResLength_BB(41., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 50 MeV (P " << KE_to_Momentum(50, mass_pion) << " MeV) : " << KE_to_ResLength_BB(50., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 100 MeV (P " << KE_to_Momentum(100, mass_pion) << " MeV) : " << KE_to_ResLength_BB(100., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 150 MeV (P " << KE_to_Momentum(150, mass_pion) << " MeV) : " << KE_to_ResLength_BB(150., mass_pion) << " cm" << endl;
@@ -59,13 +62,19 @@ void ProfileMaker::Execute(){
   cout << "[KE_to_ResLength_BB] pion KE 1000 MeV (P " << KE_to_Momentum(1000, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1000., mass_pion) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] pion KE 1500 MeV (P " << KE_to_Momentum(1500, mass_pion) << " MeV) : " << KE_to_ResLength_BB(1500., mass_pion) << " cm" << endl;
 
-  cout << "[KE_to_ResLength_BB] muon KE 100 MeV (P " << KE_to_Momentum(100, mass_muon) << " MeV) : " << KE_to_ResLength_BB(100., mass_muon) << " cm" << endl;
-  cout << "[KE_to_ResLength_BB] muon KE 150 MeV (P " << KE_to_Momentum(150, mass_muon) << " MeV) : " << KE_to_ResLength_BB(150., mass_muon) << " cm" << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 40 MeV (P " << KE_to_Momentum(40, mass_muon) << " MeV) : " << KE_to_ResLength_BB(40., mass_muon) << " cm, kappa = " << kappa(40, 0.52, mass_pion) << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 100 MeV (P " << KE_to_Momentum(100, mass_muon) << " MeV) : " << KE_to_ResLength_BB(100., mass_muon) << " cm, kappa = " << kappa(100, 0.52, mass_pion) << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 150 MeV (P " << KE_to_Momentum(150, mass_muon) << " MeV) : " << KE_to_ResLength_BB(150., mass_muon) << " cm, kappa = " << kappa(150, 0.52, mass_pion) << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 200 MeV (P " << KE_to_Momentum(200, mass_muon) << " MeV) : " << KE_to_ResLength_BB(200., mass_muon) << " cm, kappa = " << kappa(200, 0.52, mass_pion) << endl;
+  cout << "[KE_to_ResLength_BB] muon KE 220 MeV (P " << KE_to_Momentum(220, mass_muon) << " MeV) : " << KE_to_ResLength_BB(220., mass_muon) << " cm, kappa = " << kappa(220, 0.52, mass_pion) << endl;
+
   cout << "[KE_to_ResLength_BB] muon KE 250 MeV (P " << KE_to_Momentum(250, mass_muon) << " MeV) : " << KE_to_ResLength_BB(250., mass_muon) << " cm" << endl;
   cout << "[KE_to_ResLength_BB] muon KE 450 MeV (P " << KE_to_Momentum(450, mass_muon) << " MeV) : " << KE_to_ResLength_BB(450., mass_muon) << " cm" << endl;
 
 
   cout << "[P_to_ResLength_BB] muon Momentum 1000 MeV/c (KE " << Momentum_to_KE(1000., mass_muon) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(1000., mass_muon), mass_muon) << " cm" << endl;
+  cout << "[P_to_ResLength_BB] muon Momentum 450 MeV/c (KE " << Momentum_to_KE(450., mass_muon) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(450., mass_muon), mass_muon) << " cm" << endl;
+
   cout << "[P_to_ResLength_BB] pion Momentum 1000 MeV/c (KE " << Momentum_to_KE(1000., mass_pion) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(1000., mass_pion), mass_pion) << " cm" << endl;
   cout << "[P_to_ResLength_BB] proton Momentum 6000 MeV/c (KE " << Momentum_to_KE(6000., mass_proton) << " MeV/c) : " << KE_to_ResLength_BB(Momentum_to_KE(6000., mass_pion), mass_proton) << " cm" << endl;
 
@@ -128,18 +137,30 @@ void ProfileMaker::Execute(){
 
   Produce_KE_vs_dEdx("pion", mass_pion);
   //Produce_KE_vs_dEdx("proton", mass_proton);
-  //Produce_kappa("pion_0p65cm", mass_pion, 0.65);
-  //Produce_kappa("proton_0p65cm", mass_proton, 0.65);
+  Produce_kappa("pion_0p65cm", mass_pion, 0.65);
+  Produce_kappa("proton_0p65cm", mass_proton, 0.65);
   //Produce_KE_vs_Range("pion", mass_pion);
  
   ///////////////////////////
   // == Produce PDFs
   ///////////////////////////
+  /*
+  Produce_dEdx_PDF("dEdx_PDF_muon_200MeV_0p4cm", mass_muon, 200., 0.4, 0., 5., 2.0);
+  Produce_dEdx_PDF("dEdx_PDF_muon_80MeV_0p4cm", mass_muon, 80., 0.4, 0., 10., 2.0);
+  Produce_dEdx_PDF("dEdx_PDF_muon_30MeV_0p4cm", mass_muon, 30., 0.4, 0., 20., 1.5);
+  Produce_dEdx_PDF("dEdx_PDF_muon_20MeV_0p4cm", mass_muon, 20., 0.4, 0., 20., 1.5);
+
+  Produce_dEdx_PDF("dEdx_PDF_muon_10MeV_0p4cm", mass_muon, 10., 0.4, 0., 20., 1.2);
+  Produce_dEdx_PDF("dEdx_PDF_muon_5MeV_0p4cm", mass_muon, 5., 0.4, 0., 40., 1.2);
+  */
+  
+  Produce_dEdx_PDF("dEdx_PDF_pion_10MeV_0p65cm", mass_pion, 10., 0.65, 6., 14., 1.2);
+  /*
   Produce_dEdx_PDF("dEdx_PDF_pion_100MeV_0p1cm", mass_pion, 100., 0.1, 0., 5., 2.0);
   Produce_dEdx_PDF("dEdx_PDF_pion_80MeV_0p1cm", mass_pion, 80., 0.1, 0., 10., 2.0);
   Produce_dEdx_PDF("dEdx_PDF_pion_1MeV_0p1cm", mass_pion, 1., 0.1, 50., 90., 2.0);
 
-  /*
+
   Produce_dEdx_PDF("dEdx_PDF_proton_50MeV_0p65cm", mass_proton, 50, 0.65, 0., 20., 1.5);
   Produce_dEdx_PDF("dEdx_PDF_proton_80MeV_0p65cm", mass_proton, 80, 0.65, 0., 20., 1.5);
   Produce_dEdx_PDF("dEdx_PDF_proton_100MeV_0p65cm", mass_proton, 100, 0.65, 0., 20., 1.5);
@@ -313,6 +334,8 @@ void ProfileMaker::Produce_Range_from_Momentum_Gaussian(TString name, double mas
 }
 
 void ProfileMaker::Produce_kappa(TString name, double mass, double width){
+  margin.setTDRStyle();
+
   vector<double> KE_vec;
   vector<double> kappa_vec;
   for(int i = 0; i < 1000; i++){
@@ -325,15 +348,24 @@ void ProfileMaker::Produce_kappa(TString name, double mass, double width){
   }
 
   TCanvas *c = new TCanvas("", "", 800, 600);
-  gStyle->SetOptStat(0);
+  margin.canvas_margin(c);
+  gStyle -> SetOptStat(1111);
+  gStyle -> SetLineWidth(2);
   c -> SetLogx();
   c -> SetLogy();
   TH1D *template_h = new TH1D("", "", 1., 0.1, 2000.);
-  template_h ->GetXaxis() -> SetTitle("KE [MeV]");
-  template_h ->GetXaxis() -> SetTitleOffset(1.3);
-  template_h ->GetYaxis() -> SetTitle("#kappa ");
+  template_h -> SetStats(0);
+  template_h -> GetXaxis() -> SetTitle("Kinetic energy [MeV]");
+  template_h -> GetXaxis() -> SetTitleOffset(1.1);
+  template_h -> GetXaxis() -> SetLabelSize(0.05);
+  template_h -> GetXaxis() -> SetTitleSize(0.05);
+  template_h -> GetYaxis() -> SetTitle("#kappa ");
   template_h -> GetYaxis() -> SetRangeUser(0.0001, 1000.);
+  template_h -> GetYaxis() -> SetLabelSize(0.05);
+  template_h -> GetYaxis() -> SetTitleSize(0.08);
+  template_h -> GetYaxis() -> SetTitleOffset(0.6);
   template_h -> Draw();
+
   TGraph *KE_kappa = new TGraph(1000, &KE_vec[0], &kappa_vec[0]);
   KE_kappa -> SetName(name + "_KE_vs_Kappa");
   KE_kappa -> SetLineColor(kRed);
@@ -342,12 +374,35 @@ void ProfileMaker::Produce_kappa(TString name, double mass, double width){
   TLine *line1 = new TLine(0.1, 0.01, 2000., 0.01);
   line1 -> SetLineColor(kBlue);
   line1 -> SetLineStyle(7);
+  line1 -> SetLineWidth(2);
   line1 -> Draw("same");
   TLine *line2 = new TLine(0.1, 10., 2000., 10.);
   line2 -> SetLineColor(kBlue);
   line2 -> SetLineStyle(7);
+  line2 -> SetLineWidth(2);
   line2 -> Draw("same");
 
+  TString particle = "";
+  if(name.Contains("pion")) particle = "#font[42]{#pi^{#pm}}";
+  if(name.Contains("proton")) particle = "#font[42]{p}";
+
+  TLegend *l = new TLegend(0.73, 0.55, 0.93, 0.7);
+  l -> SetFillColorAlpha(kBlue, 0.);
+  l -> AddEntry(KE_kappa, particle, "");
+  l -> Draw("same");
+
+  TLatex latex_gaus, latex_vav, latex_landau;
+  latex_gaus.SetNDC();
+  latex_gaus.SetTextSize(0.05);
+  latex_gaus.DrawLatex(0.20, 0.80, "Gaussian");
+  latex_vav.SetNDC();
+  latex_vav.SetTextSize(0.05);
+  latex_vav.DrawLatex(0.20, 0.55, "Vavilov");
+  latex_landau.SetNDC();
+  latex_landau.SetTextSize(0.05);
+  latex_landau.DrawLatex(0.20, 0.25, "Landau");
+  
+  c -> RedrawAxis();
   c -> SaveAs("./output/" + name + "_KE_vs_Kappa.pdf");
 
   KE_kappa -> Write();
@@ -411,6 +466,7 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   latex_info.SetNDC();
   latex_kappa.SetTextSize(0.040);
   latex_info.SetTextSize(0.040);
+  latex_info.SetTextAlign(31);
   TString PDF_region_str = "";
   if(this_kappa < 0.01) PDF_region_str = "Landau";
   else if(this_kappa > 10.) PDF_region_str = "Gaussain";
@@ -418,7 +474,7 @@ void ProfileMaker::Produce_dEdx_PDF(TString name, double mass, double KE, double
   TString kappa_str = Form("%.3f", this_kappa);
   TString width_str = Form("%.2f", width);
   latex_kappa.DrawLatex(0.10, 0.92, "#kappa = " + kappa_str + " (" + PDF_region_str + ")");
-  latex_info.DrawLatex(0.52, 0.92, "LAr, #rho = 1.39 g/cm^{3}, #deltax = " + width_str);
+  latex_info.DrawLatex(0.90, 0.92, "LAr, #rho = 1.39 g/cm^{3}, #deltax = " + width_str + " cm");
 
   c -> SaveAs("./output/" + name + "_dEdx_PDF.pdf");
 
@@ -709,6 +765,16 @@ void ProfileMaker::Sqrt_s_in_Momentum(TString particle_str, double mass){
 
 }
 */
+
+
+double ProfileMaker::kappa(double this_KE, double width, double mass){
+
+  double this_xi = dEdx.Get_Landau_xi(this_KE, width, mass);
+  double this_Wmax = dEdx.Get_Wmax(this_KE, mass);
+  double this_kappa = this_xi / this_Wmax;
+
+  return this_kappa;
+}
 ProfileMaker::ProfileMaker(){
 
 }

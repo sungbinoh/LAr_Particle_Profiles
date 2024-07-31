@@ -25,6 +25,7 @@ public:
   void KE_to_ResLength_LV(double KE, double mass);
   double Sum_dEdx_length_KE0(double KE, double mass, double length);
   void Validate_Landau(double KE, double mass);
+  double kappa(double this_KE, double width, double mass);
   ProfileMaker();
   virtual ~ProfileMaker();
 
